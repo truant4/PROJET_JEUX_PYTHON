@@ -8,6 +8,8 @@ class Character:
         self._attack_value = attack_v
         self._defense_value = defense_v
 
+    # Ex 1 → Créer la méthode __str__ pour print correctement un personnage
+
     def __str__(self):
         return f"Hi ! My name is {self._name}. Attack: {self._attack_value}/Defense: {self._defense_value}"
 
@@ -37,9 +39,8 @@ class Character:
 
     def defend(self, damages):
         wounds = self.compute_wounds(damages)
-        print(f"[blue]{self._name} lost {wounds} hp. ({damages} dmg - {self._defense_value} def)[/blue]")
+        print(f"[blue]{self._name} lost {wounds} hp. ({damages} dmg - {self._defense_value} def )[/blue]")
         self.decrease_hp(wounds)
-
 
 
 if __name__ == "__main__":
