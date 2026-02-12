@@ -47,8 +47,8 @@ class Game:
         self.screen.fill(BG_COLOR)
 
         # Caméra centrée sur le joueur
-        camera_x = self.player.rect.centerx - WIDTH // 4
-        camera_y = self.player.rect.centery - HEIGHT // 4
+        camera_x = self.player.rect.centerx - WIDTH // 2
+        camera_y = self.player.rect.centery - HEIGHT // 2
 
         # Clamp caméra dans la map
         camera_x = max(0, min(camera_x, self.map.width_px - WIDTH))
