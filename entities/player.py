@@ -1,11 +1,6 @@
 import pygame
 
 
-
-
-import pygame
-
-
 class Entity(pygame.sprite.Sprite):
 
     def __init__(self, name, x, y):
@@ -71,9 +66,10 @@ class Player(Entity):
         super().__init__("player", 0, 0)
 
 class NPC(Entity):
-    def __init__(self, name, nb_points):
+    def __init__(self, name, nb_points, dialog):
         super().__init__(name, 0, 0)
         self.nb_points = nb_points
+        self.dialog = dialog
         self.points = []
         self.name = name
         self.speed = 1
@@ -103,16 +99,14 @@ class NPC(Entity):
             self.current_point = target_point
 
 
-
-
     def teleport_spawn(self):
         location = self.points[self.current_point]
         self.position[0]= location.x
         self.position[1]= location.y
         self.save_location()
 
-    def load_points(self, map):
+    def load_points(self, tmx_data):
         for num in range (1, self.nb_points+1):
-            point = map.get_object(f"{self.name}_path{num}")
+            point = tmx_data.get_object_by_name(f"{self.name}_path{num}")
             rect = pygame.Rect(point.x, point.y, point.width, point.height)
             self.points.append(rect)

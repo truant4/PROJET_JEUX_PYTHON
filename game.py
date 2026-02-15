@@ -1,6 +1,7 @@
 import pygame
 import pytmx
 import pyscroll
+from dialog import DialogBox
 
 from entities.player import Player
 from map import *
@@ -21,6 +22,7 @@ class Game:
         # Générer le joeur
         self.player = Player(0,0,0)
         self.map_manager = MapManager(self.screen, self.player)
+        self.dialog_box = DialogBox()
 
 
     def handle_input(self):
@@ -51,11 +53,15 @@ class Game:
             self.handle_input()
             self.update()
             self.map_manager.draw()
+            self.dialog_box.render(self.screen)
             pygame.display.flip()
 
             for event in pygame.event.get():
                 if event.type == pygame.QUIT:
                     self.running = False
+                elif event.type == pygame.KEYDOWN:
+                    if event.key == pygame.K_SPACE:
+                        self.map_manager.check_npc_collisions(self.dialog_box)
 
             clock.tick(60)
 

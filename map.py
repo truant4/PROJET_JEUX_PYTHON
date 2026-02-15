@@ -19,15 +19,27 @@ class MapManager:
           self.current_map = "map"
 
           self.register_map("map", npcs=[
-              NPC("paul", nb_points = 4),
-              NPC("robin", nb_points= 2)
+              NPC("paul", nb_points = 4, dialog=["Salut", "bien", "au revoir"]),
+              NPC("robin", nb_points= 2, dialog=["coucou", "cool", "au revoir"])
               ])
 
           self.teleportation_player("player")
           self.teleport_npcs()
 
+    def check_npc_collisions(self, dialog_box):
+        for sprite in self.get_group().sprites():
+            if sprite.feet.colliderect(self.player.rect) and type(sprite) is NPC:
+                dialog_box.execute(sprite.dialog)
+
     def check_collisions(self):
         for sprite in self.get_group().sprites():
+
+            if type(sprite) is NPC:
+                if sprite.feet.colliderect(self.player.rect):
+                    sprite.speed = 0
+                else :
+                    sprite.speed = 1
+
             if sprite.feet.collidelist(self.get_walls())> -1:
                 sprite.move_back()
 
@@ -53,7 +65,7 @@ class MapManager:
                 walls.append(pygame.Rect(obj.x, obj.y, obj.width, obj.height))
 
         # Dessiner les différents calques
-        group = pyscroll.PyscrollGroup(map_layer=map_layer, default_layer=5)
+        group = pyscroll.PyscrollGroup(map_layer=map_layer, default_layer=3)
         group.add(self.player)
 
         #recuperer tout les npcs pour les ajouter au groupe
@@ -77,7 +89,7 @@ class MapManager:
             npcs = map_data.npcs
         
         for npc in npcs:
-            npc.load_points(self)
+            npc.load_points(map_data.tmx_data)
             npc.teleport_spawn()
 
     def draw(self):
