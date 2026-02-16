@@ -55,6 +55,12 @@ class Game:
         for enemy in self.enemies:
             enemy.update(self.player)
 
+            if enemy.rect.colliderect(self.player.rect):
+                self.player.take_dmg(enemy.damage)
+
+            if enemy.attack_rect is not None and enemy.attack_rect.colliderect(self.player.rect):
+                self.player.take_dmg(enemy.damage)
+
         self.player.rect.clamp_ip(pygame.Rect(0, 0, self.map.width_px, self.map.height_px))
 
         if self.attack_rect:
@@ -78,8 +84,12 @@ class Game:
         # Dessin map puis joueur
         self.map.draw(self.screen, camera_x, camera_y)
         self.player.draw(self.screen, camera_x, camera_y)
+
         for enemy in self.enemies:
             enemy.draw(self.screen, camera_x, camera_y)
+            if enemy.attack_rect is not None:
+                attack_on_screen = enemy.attack_rect.move(-camera_x, -camera_y)
+                pygame.draw.rect(self.screen, (255, 255, 0), attack_on_screen, 2)
 
         if self.attack_rect:
             attack_on_screen = self.attack_rect.move(-camera_x, -camera_y)
