@@ -1,24 +1,18 @@
 import pygame
+from animation import AnimateSprite
 
-
-class Entity(pygame.sprite.Sprite):
+class Entity(AnimateSprite):
 
     def __init__(self, name, x, y):
-        super().__init__()
-        self.sprite_sheet = pygame.image.load(f"assets/sprites/{name}.png")
+        super().__init__(name)
+
         self.image = self.get_image(0, 0)
         self.image.set_colorkey([0, 0, 0])
         self.rect = self.image.get_rect()
         self.position = [x, y]
-        self.images = {
-            "up": self.get_image(0, 96),
-            "down": self.get_image(0, 0),
-            "right": self.get_image(0, 64),
-            "left": self.get_image(0, 32)
-        }
         self.feet = pygame.Rect(0, 0, self.rect.width * 0.5, 12)
         self.old_position = self.position.copy()
-        self.speed = 3
+        
 
     def get(self):
         self.image = self.images["down"]
@@ -27,9 +21,7 @@ class Entity(pygame.sprite.Sprite):
 
     def save_location(self): self.old_position = self.position.copy()
 
-    def change_animation(self, type):
-        self.image = self.images[type]
-        self.image.set_colorkey([0, 0, 0])
+    
 
     def move_right(self): 
         self.change_animation("right")
@@ -55,10 +47,7 @@ class Entity(pygame.sprite.Sprite):
         self.position = self.old_position
         self.update()
 
-    def get_image(self, x, y):
-        image = pygame.Surface([32, 32])
-        image.blit(self.sprite_sheet, (0, 0), (x, y, 32, 32))
-        return image
+    
     
 
 class Player(Entity):
