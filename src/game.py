@@ -1,61 +1,59 @@
 import pygame
+import pytmx
+import pyscroll
+from dialog import DialogBox
 from données import WIDTH, HEIGHT, FPS, BG_COLOR, PLAYER_SIZE
-from entities.player import Player
 from enemy import Enemy
-from world.map import TiledMap
 from projectile import Projectile
+from player import *
+from map import *
+
+
 class Game:
+
     def __init__(self):
-        pygame.init()
-        self.screen = pygame.display.set_mode((WIDTH, HEIGHT))
-        pygame.display.set_caption("Jeu Pygame POO")
-        self.clock = pygame.time.Clock()
+        # Démarrage
         self.running = True
+        self.map = "map"
+
+
+        # Affichage de la fenêtre
+        self.screen = pygame.display.set_mode((800, 600))
+        pygame.display.set_caption("BasiqueGame")
+
+
+        # Générer le joeur
+        self.player = Player(0,0,0)
+        self.map_manager = MapManager(self.screen, self.player)
+        self.dialog_box = DialogBox()
+
+        self.clock = pygame.time.Clock()
         self.attack_rect = None
         self.projectiles = []
-
-        self.map = TiledMap("assets/map.tmx")
-
-        # Joueur au centre du MONDE (pas de l'écran)
-        self.player = Player(
-            self.map.width_px // 2 - PLAYER_SIZE // 2,
-            self.map.height_px // 2 - PLAYER_SIZE // 2
-        )
 
         self.enemies = [
             Enemy(self.map.width_px//2 + 100, self.map.height_px//2),
             Enemy(self.map.width_px//2 - 150, self.map.height_px//2 - 50)
                 ]
 
-    def run(self):
-        while self.running:
-            self.clock.tick(FPS)
-            self.handle_events()
-            self.update()
-            self.draw()
-        pygame.quit()
+    def handle_input(self):
+        pressed = pygame.key.get_pressed()
 
-    def handle_events(self):
-        for event in pygame.event.get():
-            if event.type == pygame.QUIT:
-                self.running = False
-
-
-        
-        keys = pygame.key.get_pressed()
-        if keys[pygame.K_ESCAPE]:
+        if pressed[pygame.K_ESCAPE]:
             self.running = False
- 
-        if keys[pygame.K_SPACE]:
-            self.attack_rect = self.player.melee_attack()
-
-        if keys[pygame.K_r]:  # ranged attack
-            bullet = self.player.ranged_attack()
-            if bullet:
-                self.projectiles.append(bullet)
+        elif pressed[pygame.K_UP]:
+            self.player.move_up()
+        elif pressed[pygame.K_DOWN]:
+            self.player.move_down()
+        elif pressed[pygame.K_RIGHT]:
+            self.player.move_right()
+        elif pressed[pygame.K_LEFT]:
+            self.player.move_left()
 
 
     def update(self):
+        self.map_manager.update()
+
         keys = pygame.key.get_pressed()
         self.player.update(keys)
         for bullet in self.projectiles[:]:
@@ -93,6 +91,7 @@ class Game:
 
             self.enemies = [e for e in self.enemies if not e.is_dead()]
 
+
     def draw(self):
         self.screen.fill(BG_COLOR)
 
@@ -122,3 +121,30 @@ class Game:
             pygame.draw.rect(self.screen, (0, 0, 255), attack_on_screen, 2)
 
         pygame.display.flip()
+
+
+
+    def run(self):
+        clock = pygame.time.Clock()
+
+        # Clock
+        while self.running:
+
+            self.player.save_location()
+            self.handle_input()
+            self.update()
+            self.map_manager.draw()
+            self.dialog_box.render(self.screen)
+            self.draw()
+            pygame.display.flip()
+
+            for event in pygame.event.get():
+                if event.type == pygame.QUIT:
+                    self.running = False
+                elif event.type == pygame.KEYDOWN:
+                    if event.key == pygame.K_SPACE:
+                        self.map_manager.check_npc_collisions(self.dialog_box)
+
+            clock.tick(60)
+
+        pygame.quit()

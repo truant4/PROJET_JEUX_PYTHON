@@ -1,6 +1,6 @@
 import pygame
-from entities.projectile import Projectile
-from data.données import PLAYER_SIZE, PLAYER_SPEED, PLAYER_COLOR
+from projectile import Projectile
+from données import PLAYER_SIZE, PLAYER_SPEED, PLAYER_COLOR
 
 class Player:
     def __init__(self, x, y):
