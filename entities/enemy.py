@@ -8,10 +8,12 @@ class Enemy:
         self.speed = 1
         self.color = (200,50,50)
         self.direction = (0,0)
-        self.damage = 2
+        self.damage = 10
         self.attack_rect = None
         self.last_attack_time = 0
         self.attack_duration = 200 
+        self.awake = False
+        self.detection_range = 100
 
     def take_damage(self,amount):
         self.health -= amount
@@ -29,6 +31,12 @@ class Enemy:
 
         attack_range = 40 
         attack_cooldown = 500
+
+        if not self.awake:
+            if distance <= self.detection_range:
+                self.awake = True
+            else:
+                return
 
         if self.attack_rect and now - self.last_attack_time > self.attack_duration:
             self.attack_rect = None
