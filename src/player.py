@@ -17,7 +17,6 @@ class Entity(AnimateSprite):
 
     def get(self):
         self.image = self.images["down"]
-        self.image.set_colorkey([0, 0, 0])
         return self.image
 
     def save_location(self): self.old_position = self.position.copy()
@@ -45,7 +44,7 @@ class Entity(AnimateSprite):
         self.direction = (0,1)
 
     def update(self):
-        self.rect.topleft = self.position
+        self.rect.topleft = tuple(self.position)
         self.feet.midbottom = self.rect.midbottom
 
     def move_back(self):
@@ -57,7 +56,7 @@ class Entity(AnimateSprite):
 
 class Player(Entity):
     def __init__(self, name, x, y):
-        super().__init__("player", 0, 0)
+        super().__init__("player", x, y)
         self.health = 100
         self.max_health = 100
         self.melee_damage = 20
@@ -78,33 +77,28 @@ class Player(Entity):
     
     def melee_attack(self):
         now = pygame.time.get_ticks()
+        if now - self.last_melee_time < self.melee_cooldown or self.direction == (0,0):
+            return None
+        self.last_melee_time = now
 
-        if now - self.last_melee_time >= self.melee_cooldown and self.direction[0] != 0:
-            self.last_melee_time = now 
+        if self.direction[0] != 0:  # horizontal
+            attack_rect = self.rect.inflate(50, self.rect.height)
+        else:  # vertical
+            attack_rect = self.rect.inflate(self.rect.width, 50)
 
-            attack_rect = self.rect.inflate(50,0)
+        attack_rect.x += self.direction[0] * self.rect.width
+        attack_rect.y += self.direction[1] * self.rect.height
 
-
-            attack_rect.x += self.direction[0] * PLAYER_SIZE
-            attack_rect.y += self.direction[1] * PLAYER_SIZE
-
-            return attack_rect
-        elif now - self.last_melee_time >= self.melee_cooldown and self.direction[1] != 0:
-            self.last_melee_time = now 
-            attack_rect = self.rect.inflate(0,50)
-
-
-            attack_rect.x += self.direction[0] * PLAYER_SIZE
-            attack_rect.y += self.direction[1] * PLAYER_SIZE
-
-            return attack_rect
+        return attack_rect
 
     def ranged_attack(self):
         now = pygame.time.get_ticks()
 
         if now - self.last_ranged_time >= self.ranged_cooldown:
-            if self.direction != (0,0):
-                    self.last_ranged_time = now
+            if self.direction == (0,0):
+                return None
+            else:
+                 self.last_ranged_time = now
 
             return Projectile(
                 self.rect.centerx,

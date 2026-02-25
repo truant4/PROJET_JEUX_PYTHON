@@ -32,9 +32,13 @@ class Game:
         self.projectiles = []
 
         self.enemies = [
-            Enemy(self.map.width_px//2 + 100, self.map.height_px//2),
-            Enemy(self.map.width_px//2 - 150, self.map.height_px//2 - 50)
+                Enemy(400 + 100, 300,self.player),
+                Enemy(400 - 150, 250,self.player)
                 ]
+
+        current_map = self.map_manager.maps[self.map]
+        for enemy in self.enemies:
+            current_map.group.add(enemy)
 
     def handle_input(self):
         pressed = pygame.key.get_pressed()
@@ -49,16 +53,32 @@ class Game:
             self.player.move_right()
         elif pressed[pygame.K_LEFT]:
             self.player.move_left()
-
+        
+        # Melee attack
+        if pressed[pygame.K_SPACE]:
+            attack_rect = self.player.melee_attack()
+            if attack_rect:
+                self.attack_rect = attack_rect
+        
+        # Ranged attack
+        if pressed[pygame.K_f]:  # Example key for ranged attack
+            projectile = self.player.ranged_attack()
+            if projectile:
+                self.projectiles.append(projectile)
 
     def update(self):
         self.map_manager.update()
+        current_map = self.map_manager.maps[self.map]
+        tmx = current_map.tmx_data
+        map_width = tmx.width * tmx.tilewidth
+        map_height = tmx.height * tmx.tilewidth
 
-        keys = pygame.key.get_pressed()
-        self.player.update(keys)
+
+        self.player.update()
         for bullet in self.projectiles[:]:
             bullet.update()
-            if bullet.off_screen(self.map.width_px,self.map.height_px):
+
+            if bullet.off_screen(map_width,map_height):
                 self.projectiles.remove(bullet)
 
         for bullet in self.projectiles[:]:
@@ -70,9 +90,7 @@ class Game:
                     if bullet in self.projectiles:
                         self.projectiles.remove(bullet)
 
-        for enemy in self.enemies:
-            enemy.update(self.player)
- 
+        for enemy in self.enemies: 
             if enemy.rect.colliderect(self.player.rect):
                 self.player.take_dmg(enemy.damage)
 
@@ -82,7 +100,7 @@ class Game:
                 if self.player.is_dead():
                     self.running = False
 
-        self.player.rect.clamp_ip(pygame.Rect(0, 0, self.map.width_px, self.map.height_px))
+        self.player.rect.clamp_ip(pygame.Rect(0, 0, map_width, map_height))
 
         if self.attack_rect:
             for enemy in self.enemies:
@@ -92,27 +110,27 @@ class Game:
             self.enemies = [e for e in self.enemies if not e.is_dead()]
 
 
+
     def draw(self):
         self.screen.fill(BG_COLOR)
 
-        # Caméra centrée sur le joueur
+        self.map_manager.get_group().center(self.player.rect.center)
+        self.map_manager.get_group().draw(self.screen)
+
+        tmx = self.map_manager.get_map().tmx_data
+        map_width = tmx.width * tmx.tilewidth
+        map_height = tmx.height * tmx.tilewidth
+
         camera_x = self.player.rect.centerx - WIDTH // 2
         camera_y = self.player.rect.centery - HEIGHT // 2
-
-        # Clamp caméra dans la map
-        camera_x = max(0, min(camera_x, self.map.width_px - WIDTH))
-        camera_y = max(0, min(camera_y, self.map.height_px - HEIGHT))
-
-        # Dessin map puis joueur
-        self.map.draw(self.screen, camera_x, camera_y)
-        self.player.draw(self.screen, camera_x, camera_y)
+        camera_x = max(0, min(camera_x, map_width - WIDTH))
+        camera_y = max(0, min(camera_y, map_height - HEIGHT))
 
         for enemy in self.enemies:
-            enemy.draw(self.screen, camera_x, camera_y)
             if enemy.attack_rect is not None:
                 attack_on_screen = enemy.attack_rect.move(-camera_x, -camera_y)
                 pygame.draw.rect(self.screen, (255, 255, 0), attack_on_screen, 2)
-        
+
         for bullet in self.projectiles:
             bullet.draw(self.screen, camera_x, camera_y)
 
@@ -142,7 +160,7 @@ class Game:
                 if event.type == pygame.QUIT:
                     self.running = False
                 elif event.type == pygame.KEYDOWN:
-                    if event.key == pygame.K_SPACE:
+                    if event.key == pygame.K_e:
                         self.map_manager.check_npc_collisions(self.dialog_box)
 
             clock.tick(60)
