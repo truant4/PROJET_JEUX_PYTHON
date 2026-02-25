@@ -61,6 +61,9 @@ class Game:
             if enemy.attack_rect is not None and enemy.attack_rect.colliderect(self.player.rect):
                 self.player.take_dmg(enemy.damage)
 
+                if self.player.is_dead():
+                    self.running = False
+
         self.player.rect.clamp_ip(pygame.Rect(0, 0, self.map.width_px, self.map.height_px))
 
         if self.attack_rect:

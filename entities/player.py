@@ -29,6 +29,10 @@ class Player:
     def take_dmg(self, amount):
         self.health -= amount
 
+    def is_dead(self):
+       return self.health <= 0
+
+
     def attack(self):
         now = pygame.time.get_ticks()
 

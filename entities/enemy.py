@@ -8,7 +8,7 @@ class Enemy:
         self.speed = 1
         self.color = (200,50,50)
         self.direction = (0,0)
-        self.damage = 10
+        self.damage = 2
         self.attack_rect = None
         self.last_attack_time = 0
         self.attack_duration = 200 
