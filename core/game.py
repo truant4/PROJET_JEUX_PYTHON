@@ -3,7 +3,7 @@ from data.données import WIDTH, HEIGHT, FPS, BG_COLOR, PLAYER_SIZE
 from entities.player import Player
 from entities.enemy import Enemy
 from world.map import TiledMap
-
+from entities.projectile import Projectile
 class Game:
     def __init__(self):
         pygame.init()
@@ -12,6 +12,7 @@ class Game:
         self.clock = pygame.time.Clock()
         self.running = True
         self.attack_rect = None
+        self.projectiles = []
 
         self.map = TiledMap("assets/map.tmx")
 
@@ -22,8 +23,8 @@ class Game:
         )
 
         self.enemies = [
-                Enemy(self.map.width_px//2 + 100, self.map.height_px//2),
-                Enemy(self.map.width_px//2 - 150, self.map.height_px//2 - 50)
+            Enemy(self.map.width_px//2 + 100, self.map.height_px//2),
+            Enemy(self.map.width_px//2 - 150, self.map.height_px//2 - 50)
                 ]
 
     def run(self):
@@ -44,17 +45,36 @@ class Game:
         keys = pygame.key.get_pressed()
         if keys[pygame.K_ESCAPE]:
             self.running = False
-
+ 
         if keys[pygame.K_SPACE]:
-            self.attack_rect = self.player.attack()
+            self.attack_rect = self.player.melee_attack()
+
+        if keys[pygame.K_r]:  # ranged attack
+            bullet = self.player.ranged_attack()
+            if bullet:
+                self.projectiles.append(bullet)
+
 
     def update(self):
         keys = pygame.key.get_pressed()
         self.player.update(keys)
+        for bullet in self.projectiles[:]:
+            bullet.update()
+            if bullet.off_screen(self.map.width_px,self.map.height_px):
+                self.projectiles.remove(bullet)
+
+        for bullet in self.projectiles[:]:
+            for enemy in self.enemies:
+                if bullet.rect.colliderect(enemy.rect):
+                    enemy.take_damage(self.player.ranged_damage)
+                    self.enemies = [e for e in self.enemies if not e.is_dead()]
+
+                    if bullet in self.projectiles:
+                        self.projectiles.remove(bullet)
 
         for enemy in self.enemies:
             enemy.update(self.player)
-
+ 
             if enemy.rect.colliderect(self.player.rect):
                 self.player.take_dmg(enemy.damage)
 
@@ -69,7 +89,7 @@ class Game:
         if self.attack_rect:
             for enemy in self.enemies:
                 if self.attack_rect.colliderect(enemy.rect):
-                    enemy.take_damage(self.player.damage)
+                    enemy.take_damage(self.player.melee_damage)
 
             self.enemies = [e for e in self.enemies if not e.is_dead()]
 
@@ -93,6 +113,9 @@ class Game:
             if enemy.attack_rect is not None:
                 attack_on_screen = enemy.attack_rect.move(-camera_x, -camera_y)
                 pygame.draw.rect(self.screen, (255, 255, 0), attack_on_screen, 2)
+        
+        for bullet in self.projectiles:
+            bullet.draw(self.screen, camera_x, camera_y)
 
         if self.attack_rect:
             attack_on_screen = self.attack_rect.move(-camera_x, -camera_y)

@@ -1,4 +1,5 @@
 import pygame
+from entities.projectile import Projectile
 from data.données import PLAYER_SIZE, PLAYER_SPEED, PLAYER_COLOR
 
 class Player:
@@ -7,9 +8,12 @@ class Player:
         self.speed = PLAYER_SPEED
         self.health = 100
         self.max_health = 100
-        self.damage = 20
-        self.attack_cooldown = 500 # milliseconds
-        self.last_attack_time = 0
+        self.melee_damage = 20
+        self.melee_cooldown = 500
+        self.last_melee_time = 0
+        self.ranged_damage = 10
+        self.ranged_cooldown = 300
+        self.last_ranged_time = 0
         self.direction = (0,0)
 
     def update(self, keys):
@@ -33,11 +37,11 @@ class Player:
        return self.health <= 0
 
 
-    def attack(self):
+    def melee_attack(self):
         now = pygame.time.get_ticks()
 
-        if now - self.last_attack_time >= self.attack_cooldown and self.direction[0] != 0:
-            self.last_attack_time = now 
+        if now - self.last_melee_time >= self.melee_cooldown and self.direction[0] != 0:
+            self.last_melee_time = now 
 
             attack_rect = self.rect.inflate(50,0)
 
@@ -46,8 +50,8 @@ class Player:
             attack_rect.y += self.direction[1] * PLAYER_SIZE
 
             return attack_rect
-        elif now - self.last_attack_time >= self.attack_cooldown and self.direction[1] != 0:
-            self.last_attack_time = now 
+        elif now - self.last_melee_time >= self.melee_cooldown and self.direction[1] != 0:
+            self.last_melee_time = now 
             attack_rect = self.rect.inflate(0,50)
 
 
@@ -55,6 +59,23 @@ class Player:
             attack_rect.y += self.direction[1] * PLAYER_SIZE
 
             return attack_rect
+
+    def ranged_attack(self):
+        now = pygame.time.get_ticks()
+
+        if now - self.last_ranged_time >= self.ranged_cooldown:
+            if self.direction != (0,0):
+                    self.last_ranged_time = now
+
+            return Projectile(
+                self.rect.centerx,
+                self.rect.centery,
+                5,
+                (255, 255, 0),
+                self.direction[0],
+                self.direction[1]
+                            )
+        return None
 
 
 
