@@ -1,6 +1,6 @@
 from dataclasses import dataclass
 import pygame, pytmx, pyscroll
-from entities.player import *
+from player import *
 
 @dataclass
 class Map:

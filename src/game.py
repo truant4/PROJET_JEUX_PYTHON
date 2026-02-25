@@ -3,7 +3,7 @@ import pytmx
 import pyscroll
 from dialog import DialogBox
 
-from entities.player import Player
+from player import Player
 from map import *
 
 
