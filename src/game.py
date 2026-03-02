@@ -12,7 +12,7 @@ class Game:
     def __init__(self):
         # Démarrage
         self.running = True
-        self.map = "map"
+        self.map = "world"
 
         # Affichage de la fenêtre
         self.screen = pygame.display.set_mode((800, 600))

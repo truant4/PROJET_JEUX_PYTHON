@@ -16,9 +16,9 @@ class MapManager:
           self.maps = dict()
           self.screen = screen
           self.player = player
-          self.current_map = "map"
+          self.current_map = "world"
 
-          self.register_map("map", npcs=[
+          self.register_map("world", npcs=[
               NPC("paul", nb_points = 4, dialog=["Salut", "bien", "au revoir"]),
               NPC("robin", nb_points= 2, dialog=["coucou", "cool", "au revoir"])
               ])
@@ -65,7 +65,7 @@ class MapManager:
                 walls.append(pygame.Rect(obj.x, obj.y, obj.width, obj.height))
 
         # Dessiner les différents calques
-        group = pyscroll.PyscrollGroup(map_layer=map_layer, default_layer=2)
+        group = pyscroll.PyscrollGroup(map_layer=map_layer, default_layer=8)
         group.add(self.player)
 
         #recuperer tout les npcs pour les ajouter au groupe
