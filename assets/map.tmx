@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<map version="1.10" tiledversion="1.11.2" orientation="orthogonal" renderorder="right-down" width="100" height="100" tilewidth="32" tileheight="32" infinite="0" nextlayerid="8" nextobjectid="29">
+<map version="1.10" tiledversion="1.11.2" orientation="orthogonal" renderorder="right-down" width="100" height="100" tilewidth="32" tileheight="32" infinite="0" nextlayerid="11" nextobjectid="51">
  <tileset firstgid="1" source="TX Tileset Grass.tsx"/>
  <tileset firstgid="65" source="tree.tsx"/>
  <layer id="1" name="ground" width="100" height="100">
@@ -442,5 +442,11 @@
   <object id="11" name="paul_path4" x="1856.66" y="1713.33" width="32" height="31.6667"/>
   <object id="13" name="robin_path1" x="1505.08" y="992.5" width="30" height="31.3333"/>
   <object id="14" name="robin_path2" x="1504.67" y="1215.92" width="31" height="31.6667"/>
+  <object id="39" name="boss1_path1" x="1376.67" y="1380.66" width="30.6667" height="24.6666"/>
+  <object id="40" name="boss1_path2" x="1506.67" y="1379.33" width="29.3333" height="28"/>
+  <object id="42" name="boss2_path2" x="1376.67" y="1472" width="30" height="35.3333"/>
+  <object id="43" name="boss2_path1" x="1376" y="1632" width="32" height="30"/>
+  <object id="46" name="boss3_path1" x="1120" y="1536.67" width="32.6667" height="32.6667"/>
+  <object id="47" name="boss3_path2" x="1249.33" y="1539.33" width="28.6667" height="27.3333"/>
  </objectgroup>
 </map>

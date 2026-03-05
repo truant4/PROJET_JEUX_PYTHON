@@ -1,159 +1,121 @@
 import pygame
-import math
-from animation import AnimateSprite
-from player import Entity
-class Enemy(Entity):
-    def __init__(self, x, y, player):
-        super().__init__("boss", x, y)
+from player import NPC  # Assuming NPC inherits from Entity
+from projectile import Projectile
 
+class Enemy(NPC):
+    def __init__(self, name, player, nb_points=0, dialog=[], detection_range=100,
+                 speed=0.5, health=50, damage=5, attack_range=40, attack_cooldown=800):
+        super().__init__(name, nb_points=nb_points, dialog=dialog)
         self.player = player
-        self.health = 50
-        self.max_health = 50
-        self.speed = 1
-        self.damage = 10
 
-        self.attack_rect = None
+        # Stats
+        self.health = health
+        self.max_health = health
+        self.damage = damage
+        self.attack_range = attack_range
+        self.attack_cooldown = attack_cooldown
         self.last_attack_time = 0
-        self.attack_duration = 200
-        self.detection_range = 100
+
+        # Movement & AI
+        self.detection_range = detection_range
         self.awake = False
+        self.speed = speed
 
-        self.current_animation = "down"        
+        # Animation
+        self.action = "idle"
+        self.direction = "down"
 
-        self.color = (200,50,50)
-
-    def take_damage(self,amount):
+    # Health
+    def take_damage(self, amount):
         self.health -= amount
+        if self.health < 0:
+            self.health = 0
 
     def is_dead(self):
         return self.health <= 0
 
-    
+    # Update per frame
     def update(self):
-        player = self.player
-        now = pygame.time.get_ticks()
-        self.change_animation(self.current_animation)
-        dx = player.rect.centerx - self.rect.centerx
-        dy = player.rect.centery - self.rect.centery
-        distance = math.hypot(dx, dy)
+        """AI: detect, chase player, patrol, and update animation."""
+        # Vector to player
+        dx = self.player.rect.centerx - self.rect.centerx
+        dy = self.player.rect.centery - self.rect.centery
+        distance = abs(dx) + abs(dy)
+        chase_range = self.detection_range + 50
 
-        attack_range = 40 
-        attack_cooldown = 500
+        # Detection
+        if distance <= self.detection_range:
+            self.awake = True
+        elif distance > chase_range:
+            self.awake = False
 
-        if not self.awake:
-            if distance <= self.detection_range:
-                self.awake = True
+        # Reset movement vector
+        self.move_vector = (0, 0)
+        self.action = "idle"
+
+        if self.awake:
+            if distance > self.attack_range:
+                # Move toward player
+                self.move_toward(self.player.rect.centerx, self.player.rect.centery)
+                self.action = "run"
             else:
-                return
-
-        if self.attack_rect and now - self.last_attack_time > self.attack_duration:
-            self.attack_rect = None
-
-        if distance > attack_range:
-            if self.rect.x < player.rect.x:
-                self.rect.x += self.speed
-            elif self.rect.x > player.rect.x:
-                self.rect.x -= self.speed
-
-            if self.rect.y < player.rect.y:
-                self.rect.y += self.speed
-            elif self.rect.y > player.rect.y:
-                self.rect.y -= self.speed
-
-
+                # Attack
+                self.attack()
+                self.action = "attack"
         else:
-            if now - self.last_attack_time > attack_cooldown:
-                self.attack_rect = self.attack(player)
-                self.last_attack_time = now
+            # Patrol logic
+            if self.nb_points > 0:
+                patrol_point = self.points[self.current_point].center
+                self.move_toward(*patrol_point)
+                self.action = "run"
+
+                # Check if reached patrol point
+                if abs(self.rect.centerx - patrol_point[0]) <= self.speed and \
+                   abs(self.rect.centery - patrol_point[1]) <= self.speed:
+                    self.current_point = (self.current_point + 1) % self.nb_points
+            else:
+                # fallback idle
+                self.action = "idle"
+
+        # Update animation and rect
+        self.change_animation(self.action, self.direction)
         self.rect.topleft = tuple(self.position)
         self.feet.midbottom = self.rect.midbottom
 
-        self.current_animation = self.get_facing_direction(player)
-        self.change_animation(self.current_animation)
-
-    def get_facing_direction(self, player):
-        dx = player.rect.centerx - self.rect.centerx
-        dy = player.rect.centery - self.rect.centery
-
+    # Determine cardinal direction based on movement vector
+    def get_facing_direction(self, dx, dy):
         if abs(dx) > abs(dy):
-            if dx > 0:
-                return "right"
-            else:
-                return "left"
+            return "right" if dx > 0 else "left"
         else:
-            if dy > 0:
-                return "down"
-            else:
-                return "up"
+            return "down" if dy > 0 else "up"
 
-    
-    
-    def attack(self, player):
-        direction = self.get_facing_direction(player)
+    # Axis-aligned movement
+    def move_toward(self, target_x, target_y):
+        dx = target_x - self.rect.centerx
+        dy = target_y - self.rect.centery
 
-        attack_size = 24 
-        attack_length = 28 
-        attack_rect = None
+        step_x = min(self.speed, abs(dx)) * (1 if dx > 0 else -1) if dx != 0 else 0
+        step_y = min(self.speed, abs(dy)) * (1 if dy > 0 else -1) if dy != 0 else 0
 
-        if direction == "right":
-            attack_rect = pygame.Rect(
-                self.rect.right,
-                self.rect.centery - attack_size // 2,
-                attack_length,
-                attack_size
-            )
+        # Update position
+        self.position[0] += step_x
+        self.position[1] += step_y
 
-        elif direction == "left":
-            attack_rect = pygame.Rect(
-                self.rect.left - attack_length,
-                self.rect.centery - attack_size // 2,
-                attack_length,
-                attack_size
-            )
+        # Set move_vector for attacks and collisions
+        self.move_vector = (step_x, step_y)
 
-        elif direction == "down":
-            attack_rect = pygame.Rect(
-                self.rect.centerx - attack_size // 2,
-                self.rect.bottom,
-                attack_size,
-                attack_length
-            )
+        # Set facing direction for animation
+        if step_x != 0 or step_y != 0:
+            self.direction = self.get_facing_direction(step_x, step_y)
 
-        elif direction == "up":
-            attack_rect = pygame.Rect(
-                self.rect.centerx - attack_size // 2,
-                self.rect.top - attack_length,
-                attack_size,
-                attack_length
-            )
+    # Attack logic
+    def attack(self):
+        now = pygame.time.get_ticks()
+        if now - self.last_attack_time < self.attack_cooldown:
+            return
 
-        return attack_rect
-
-
-    def draw_health_bar(self, screen, camera_x, camera_y):
-        rect_on_screen = self.rect.move(-camera_x, -camera_y)
-        pygame.draw.rect(screen, self.color, rect_on_screen)
-
-        screen.blit(
-                self.image,
-                (self.rect.x - camera_x, self.rect.y - camera_y)
-
-                )
-        bar_width = self.rect.width
-        bar_height = 6
-        health_ratio = self.health / self.max_health
-        current_width = bar_width * health_ratio
-
-        pygame.draw.rect(screen, (255, 0, 0),
-                         (rect_on_screen.x,
-                          rect_on_screen.y - 10,
-                          bar_width,
-                          bar_height))
-
-        pygame.draw.rect(screen, (0, 255, 0),
-                         (rect_on_screen.x,
-                          rect_on_screen.y - 10,
-                          current_width,
-                          bar_height))
-
-    
+        dx = abs(self.player.rect.centerx - self.rect.centerx)
+        dy = abs(self.player.rect.centery - self.rect.centery)
+        if dx + dy <= self.attack_range:
+            self.player.take_dmg(self.damage)
+            self.last_attack_time = now

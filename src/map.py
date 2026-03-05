@@ -1,6 +1,8 @@
 from dataclasses import dataclass
 import pygame, pytmx, pyscroll
+import dialog
 from player import *
+from enemy import Enemy
 
 @dataclass
 class Map:
@@ -9,6 +11,7 @@ class Map:
     group : pyscroll.PyscrollGroup
     tmx_data: pytmx.TiledMap
     npcs: list[NPC]
+    enemies: list
 
 class MapManager:
      
@@ -17,14 +20,20 @@ class MapManager:
           self.screen = screen
           self.player = player
           self.current_map = "map"
-
+          self.enemies = []
           self.register_map("map", npcs=[
               NPC("paul", nb_points = 4, dialog=["Salut", "bien", "au revoir"]),
-              NPC("robin", nb_points= 2, dialog=["coucou", "cool", "au revoir"])
-              ])
+              NPC("robin", nb_points= 2, dialog=["coucou", "cool", "au revoir"]),
+              ],
+              enemies=[
+                Enemy("boss1",self.player,nb_points=2),
+                Enemy("boss2",self.player,nb_points=2)
+            ])
 
+          
           self.teleportation_player("player")
           self.teleport_npcs()
+          # self.teleport_enemies()
 
     def check_npc_collisions(self, dialog_box):
         for sprite in self.get_group().sprites():
@@ -48,9 +57,9 @@ class MapManager:
         self.player.position[0]=point.x
         self.player.position[1]=point.y
         self.player.save_location()
-          
 
-    def register_map(self, name, npcs=[]):
+            
+    def register_map(self, name, npcs=[], enemies=[]):
         # Charger la carte clasique
         tmx_data = pytmx.util_pygame.load_pygame(f"assets/{name}.tmx")
         map_data = pyscroll.data.TiledMapData(tmx_data)
@@ -71,9 +80,13 @@ class MapManager:
         #recuperer tout les npcs pour les ajouter au groupe
         for npc in npcs:
             group.add(npc)
+        
+        for enemy in enemies:
+            group.add(enemy)
 
-        #creer un objet map
-        self.maps[name] = Map(name, walls, group, tmx_data, npcs)
+        #creer un objet ma 
+        self.maps[name] = Map(name, walls, group, tmx_data, npcs,enemies)
+
 
     def get_map(self): return self.maps[self.current_map]
 
@@ -84,13 +97,21 @@ class MapManager:
     def get_object(self, name): return self.get_map().tmx_data.get_object_by_name(name)
 
     def teleport_npcs(self):
-        for map in self.maps:
-            map_data = self.maps[map]
-            npcs = map_data.npcs
-        
-        for npc in npcs:
-            npc.load_points(map_data.tmx_data)
-            npc.teleport_spawn()
+        for map_name, map_data in self.maps.items():
+            # First, load points for NPCs and enemies
+            for npc in map_data.npcs:
+                print(f"Loading points for NPC: {npc.name}")  # Debug
+                npc.load_points(map_data.tmx_data)
+            
+            for enemy in map_data.enemies:
+                print(f"Loading points for Enemy: {enemy.name}")  # Debug
+                enemy.load_points(map_data.tmx_data)
+            
+            # Then, teleport them
+            for npc in map_data.npcs:
+                npc.teleport_spawn()
+            for enemy in map_data.enemies:
+                enemy.teleport_spawn()  # <- parentheses!
 
     def draw(self):
         self.get_group().draw(self.screen)
@@ -102,3 +123,5 @@ class MapManager:
 
         for npc in self.get_map().npcs:
             npc.move()
+        for enemy in self.get_map().enemies:
+            enemy.update()
