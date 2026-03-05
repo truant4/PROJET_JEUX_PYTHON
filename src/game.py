@@ -14,7 +14,7 @@ class Game:
     def __init__(self):
         # Démarrage
         self.running = True
-        self.map = "map"
+        self.map = "world"
 
 
         # Affichage de la fenêtre
