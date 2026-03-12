@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<map version="1.10" tiledversion="1.11.2" orientation="orthogonal" renderorder="right-down" width="49" height="35" tilewidth="16" tileheight="16" infinite="1" nextlayerid="6" nextobjectid="1">
+<map version="1.10" tiledversion="1.11.2" orientation="orthogonal" renderorder="right-down" width="49" height="35" tilewidth="16" tileheight="16" infinite="1" nextlayerid="7" nextobjectid="15">
  <tileset firstgid="1" source="tiles/Dungeon_Tiles.tsx"/>
  <layer id="1" name="ground" width="49" height="35">
   <data encoding="csv">
@@ -193,7 +193,7 @@
 3,353,1,2,303,2,3,353,1,2,3,351,1,2,3,4,
 28,378,26,27,303,27,28,378,26,27,28,376,26,27,28,29,
 53,403,51,52,452,52,53,403,51,452,53,401,51,52,53,54,
-304,428,304,304,304,304,304,428,304,304,304,426,304,304,304,304,
+304,428,304,304,304,304,304,428,304,304,304,426,304,304,304,79,
 304,304,304,304,304,304,304,304,304,304,304,304,304,304,304,304,
 304,304,304,304,304,304,304,304,304,304,304,304,304,304,304,304,
 304,304,304,304,304,304,304,304,304,304,304,304,304,304,304,304,
@@ -517,4 +517,20 @@
 </chunk>
   </data>
  </layer>
+ <objectgroup id="6" name="collisions">
+  <object id="1" type="collision" x="79.6667" y="31.3333" width="495.667" height="46.0303"/>
+  <object id="2" type="collision" x="81" y="544.333" width="495.667" height="16.6667"/>
+  <object id="3" type="collision" x="561.667" y="76.3333" width="14.6667" height="468.667"/>
+  <object id="4" type="collision" x="80" y="77.8485" width="14.6667" height="468.485"/>
+  <object id="5" type="collision" x="208.674" y="77.4167" width="14.6667" height="11.1818"/>
+  <object id="6" type="collision" x="272.492" y="77.1439" width="14.6667" height="11.1818"/>
+  <object id="7" type="collision" x="144.674" y="77.2348" width="14.6667" height="11.1818"/>
+  <object id="8" type="collision" x="368.674" y="76.8712" width="14.6667" height="11.1818"/>
+  <object id="9" type="collision" x="432.856" y="77.053" width="14.6667" height="11.1818"/>
+  <object id="11" type="collision" x="368.371" y="337.053" width="176.636" height="191.97"/>
+  <object id="13" type="collision" x="356.735" y="336.326" width="10.4545" height="174.879"/>
+  <object id="14" type="collision" x="290.917" y="337.598" width="10.4545" height="174.879"/>
+  <object id="12" type="collision" x="110.917" y="336.689" width="176.636" height="191.97"/>
+  <object id="10" type="collision" x="496.856" y="76.553" width="14.6667" height="11.1818"/>
+ </objectgroup>
 </map>
