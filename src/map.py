@@ -5,6 +5,13 @@ from player import *
 from enemy import Enemy
 
 @dataclass
+class Portals:
+    from_world: str
+    origin_point: str
+    target_world: str
+    teleport_point: str
+
+@dataclass
 class Map:
     name : str
     walls : list[pygame.Rect]
@@ -12,28 +19,39 @@ class Map:
     tmx_data: pytmx.TiledMap
     npcs: list[NPC]
     enemies: list
+    portals : list[Portals]
 
 class MapManager:
      
     def __init__(self, screen, player):
-          self.maps = dict()
-          self.screen = screen
-          self.player = player
-          self.current_map = "map"
-          self.enemies = []
-          self.register_map("map", npcs=[
-              NPC("paul", nb_points = 4, dialog=["Salut", "bien", "au revoir"]),
-              NPC("robin", nb_points= 2, dialog=["coucou", "cool", "au revoir"]),
-              ],
-              enemies=[
-                Enemy("boss1",self.player,nb_points=2),
-                Enemy("boss2",self.player,nb_points=2)
-            ])
+        self.maps = dict()
+        self.screen = screen
+        self.player = player
+        self.current_map = "map"
 
-          
-          self.teleportation_player("player")
-          self.teleport_npcs()
-          # self.teleport_enemies()
+        self.enemies = []
+        self.register_map("map", npcs=[
+            NPC("paul", nb_points = 4, dialog=["Salut", "bien", "au revoir"]),
+            NPC("robin", nb_points= 2, dialog=["coucou", "cool", "au revoir"]),
+            ],
+            enemies=[
+            Enemy("boss1",self.player,nb_points=2),
+            Enemy("boss2",self.player,nb_points=2)
+        ],
+        portals=[
+            Portals(from_world="map", origin_point="enter_housse", target_world="test", teleport_point="spawn_housse"),
+            Portals(from_world="map", origin_point="enter_housse1", target_world="test2", teleport_point="spawn_housse1")
+        ])
+        self.register_map("test", portals=[
+            Portals(from_world="test", origin_point="exit_housse", target_world="map", teleport_point="enter_housse_exit" )
+        ])
+        self.register_map("test2", portals=[
+            Portals(from_world="test2", origin_point="exit_housse1", target_world="map", teleport_point="enter_housse1_exit" )
+        ])
+
+        self.teleportation_player("player")
+        self.teleport_npcs()
+        # self.teleport_enemies()
 
     def check_npc_collisions(self, dialog_box):
         for sprite in self.get_group().sprites():
@@ -41,15 +59,18 @@ class MapManager:
                 dialog_box.execute(sprite.dialog)
 
     def check_collisions(self):
+        for portal in self.get_map().portals:
+            if portal.from_world == self.current_map:
+                point = self.get_object(portal.origin_point)
+                rect = pygame.Rect(point.x, point.y, point.width, point.height)
+
+                if self.player.feet.colliderect(rect):
+                    copy_portal = portal
+                    self.current_map = portal.target_world
+                    self.teleportation_player(copy_portal.teleport_point)
+
         for sprite in self.get_group().sprites():
-
-            if type(sprite) is NPC:
-                if sprite.feet.colliderect(self.player.rect):
-                    sprite.speed = 0
-                else :
-                    sprite.speed = 1
-
-            if sprite.feet.collidelist(self.get_walls())> -1:
+            if sprite.feet.collidelist(self.get_walls()) > -1:
                 sprite.move_back()
 
     def teleportation_player(self,name):
@@ -59,7 +80,14 @@ class MapManager:
         self.player.save_location()
 
             
-    def register_map(self, name, npcs=[], enemies=[]):
+    def register_map(self, name, npcs=None, enemies=None, portals=None):
+        if npcs is None:
+            npcs = []
+        if enemies is None:
+            enemies = []
+        if portals is None:
+            portals = []
+
         # Charger la carte clasique
         tmx_data = pytmx.util_pygame.load_pygame(f"assets/{name}.tmx")
         map_data = pyscroll.data.TiledMapData(tmx_data)
@@ -85,7 +113,7 @@ class MapManager:
             group.add(enemy)
 
         #creer un objet ma 
-        self.maps[name] = Map(name, walls, group, tmx_data, npcs,enemies)
+        self.maps[name] = Map(name, walls, group, tmx_data, npcs,enemies, portals)
 
 
     def get_map(self): return self.maps[self.current_map]
