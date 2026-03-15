@@ -39,14 +39,10 @@ class MapManager:
             Enemy("boss2",self.player,nb_points=2)
         ],
         portals=[
-            Portals(from_world="map", origin_point="enter_housse", target_world="test", teleport_point="spawn_housse"),
-            Portals(from_world="map", origin_point="enter_housse1", target_world="test2", teleport_point="spawn_housse1")
+            Portals(from_world="map", origin_point="enter_housse", target_world="test", teleport_point="spawn_housse")
         ])
         self.register_map("test", portals=[
             Portals(from_world="test", origin_point="exit_housse", target_world="map", teleport_point="enter_housse_exit" )
-        ])
-        self.register_map("test2", portals=[
-            Portals(from_world="test2", origin_point="exit_housse1", target_world="map", teleport_point="enter_housse1_exit" )
         ])
 
         self.teleportation_player("player")
