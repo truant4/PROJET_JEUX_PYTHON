@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<map version="1.10" tiledversion="1.11.2" orientation="orthogonal" renderorder="right-down" width="107" height="110" tilewidth="16" tileheight="16" infinite="0" nextlayerid="32" nextobjectid="440">
+<map version="1.10" tiledversion="1.11.2" orientation="orthogonal" renderorder="right-down" width="107" height="110" tilewidth="16" tileheight="16" infinite="0" nextlayerid="33" nextobjectid="442">
  <tileset firstgid="1" source="tiles/Floors_Tiles.tsx"/>
  <tileset firstgid="651" source="tiles/Farm.tsx"/>
  <tileset firstgid="1276" source="tiles/Rocks.tsx"/>
@@ -2858,6 +2858,12 @@
   <object id="276" name="boss2_path1" x="368.25" y="671.75" width="16" height="16.5"/>
   <object id="279" name="boss2_path2" x="432.375" y="671.875" width="15.875" height="16.375"/>
   <object id="430" name="player" x="418.5" y="766.5" width="53.5" height="55.5"/>
+ </objectgroup>
+ <objectgroup id="32" name="portals">
+  <object id="440" name="enter_housse" type="enter_housse" x="1340.67" y="1094" width="16" height="26.6667"/>
+  <object id="441" name="enter_exit_housse" type="enter_exit_housse" x="1351.33" y="1136">
+   <point/>
+  </object>
  </objectgroup>
  <objectgroup id="31" name="items">
   <object id="437" name="healing_item_1" type="healing_item" x="520" y="1334.5" width="27.5" height="22"/>

@@ -1,4 +1,4 @@
-from dataclasses import dataclass
+﻿from dataclasses import dataclass
 import pygame, pytmx, pyscroll
 import dialog
 from player import *
@@ -62,20 +62,24 @@ class MapManager:
                 point = self.get_object(portal.origin_point)
                 rect = pygame.Rect(point.x, point.y, point.width, point.height)
 
-            if isinstance(sprite, HealingItem):
-                continue
-
-            if type(sprite) is NPC:
-                if sprite.feet.colliderect(self.player.rect):
-                    sprite.speed = 0
-                else :
-                    sprite.speed = 1
                 if self.player.feet.colliderect(rect):
                     copy_portal = portal
                     self.current_map = portal.target_world
                     self.teleportation_player(copy_portal.teleport_point)
 
+
         for sprite in self.get_group().sprites():
+            if type(sprite) is NPC:
+                if sprite.feet.colliderect(self.player.rect):
+                    sprite.speed = 0
+                else :
+                    sprite.speed = 1
+                    
+
+
+        for sprite in self.get_group().sprites():
+            if isinstance(sprite, HealingItem):
+                continue
             if sprite.feet.collidelist(self.get_walls()) > -1:
                 sprite.move_back()
 
@@ -150,7 +154,7 @@ class MapManager:
                 group.add(item)
 
     
-        self.maps[name] = Map(name, walls, group, tmx_data, npcs,enemies, portals, items)
+        self.maps[name] = Map(name, walls, group, tmx_data, npcs,enemies, items, portals)
 
 
     def get_map(self): return self.maps[self.current_map]
