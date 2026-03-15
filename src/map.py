@@ -3,6 +3,7 @@ import pygame, pytmx, pyscroll
 import dialog
 from player import *
 from enemy import Enemy
+from items import HealingItem
 
 @dataclass
 class Map:
@@ -12,6 +13,7 @@ class Map:
     tmx_data: pytmx.TiledMap
     npcs: list[NPC]
     enemies: list
+    items: list
 
 class MapManager:
      
@@ -43,6 +45,9 @@ class MapManager:
     def check_collisions(self):
         for sprite in self.get_group().sprites():
 
+            if isinstance(sprite, HealingItem):
+                continue
+
             if type(sprite) is NPC:
                 if sprite.feet.colliderect(self.player.rect):
                     sprite.speed = 0
@@ -51,6 +56,12 @@ class MapManager:
 
             if sprite.feet.collidelist(self.get_walls())> -1:
                 sprite.move_back()
+        for item in self.get_map().items:
+            if self.player.rect.colliderect(item.rect):
+                self.player.health = min(self.player.health + item.amount, self.player.max_health)
+                item.kill()
+                self.get_map().items.remove(item)
+            
 
     def teleportation_player(self,name):
         point = self.get_object(name)
@@ -64,7 +75,7 @@ class MapManager:
         tmx_data = pytmx.util_pygame.load_pygame(f"assets/{name}.tmx")
         map_data = pyscroll.data.TiledMapData(tmx_data)
         map_layer = pyscroll.orthographic.BufferedRenderer(map_data, self.screen.get_size())
-        map_layer.zoom = 2
+        map_layer.zoom = 5
 
         # Les collisions
         walls = []
@@ -84,8 +95,16 @@ class MapManager:
         for enemy in enemies:
             group.add(enemy)
 
-        #creer un objet ma 
-        self.maps[name] = Map(name, walls, group, tmx_data, npcs,enemies)
+        items = []
+        for obj in tmx_data.objects:
+            if obj.type == "healing_item":
+                amount = int(obj.properties.get("amount", 10))
+                item = HealingItem(obj.x, obj.y, amount)
+                items.append(item)
+                group.add(item)
+
+    
+        self.maps[name] = Map(name, walls, group, tmx_data, npcs,enemies, items)
 
 
     def get_map(self): return self.maps[self.current_map]
