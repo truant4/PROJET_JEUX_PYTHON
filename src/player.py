@@ -66,7 +66,8 @@ class Entity(AnimateSprite):
     # Move back to previous position (collision)
     def move_back(self):
         self.position = self.old_position.copy()
-        self.update()
+        self.rect.topleft = tuple(self.position)     
+        self.feet.midbottom = self.rect.midbottom 
 
     # Update animation and position
     def update(self):

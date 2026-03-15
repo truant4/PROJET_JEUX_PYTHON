@@ -3,6 +3,7 @@ import pygame, pytmx, pyscroll
 import dialog
 from player import *
 from enemy import Enemy
+from items import HealingItem
 
 @dataclass
 class Portals:
@@ -19,6 +20,7 @@ class Map:
     tmx_data: pytmx.TiledMap
     npcs: list[NPC]
     enemies: list
+    items: list
     portals : list[Portals]
 
 class MapManager:
@@ -60,6 +62,14 @@ class MapManager:
                 point = self.get_object(portal.origin_point)
                 rect = pygame.Rect(point.x, point.y, point.width, point.height)
 
+            if isinstance(sprite, HealingItem):
+                continue
+
+            if type(sprite) is NPC:
+                if sprite.feet.colliderect(self.player.rect):
+                    sprite.speed = 0
+                else :
+                    sprite.speed = 1
                 if self.player.feet.colliderect(rect):
                     copy_portal = portal
                     self.current_map = portal.target_world
@@ -68,6 +78,28 @@ class MapManager:
         for sprite in self.get_group().sprites():
             if sprite.feet.collidelist(self.get_walls()) > -1:
                 sprite.move_back()
+
+        for npc in self.get_map().npcs:
+            if self.player.feet.colliderect(npc.feet):
+                self.player.move_back()
+
+        enemies = self.get_map().enemies
+        for i, enemy in enumerate(enemies):
+            for other in enemies[i+1:]:
+                if enemy.feet.colliderect(other.feet):
+                    enemy.move_back()
+                    other.move_back()
+                    
+        for enemy in self.get_map().enemies:
+            if self.player.feet.colliderect(enemy.feet):
+                self.player.move_back()
+
+        for item in self.get_map().items:
+            if self.player.rect.colliderect(item.rect):
+                self.player.health = min(self.player.health + item.amount, self.player.max_health)
+                item.kill()
+                self.get_map().items.remove(item)
+            
 
     def teleportation_player(self,name):
         point = self.get_object(name)
@@ -88,7 +120,7 @@ class MapManager:
         tmx_data = pytmx.util_pygame.load_pygame(f"assets/{name}.tmx")
         map_data = pyscroll.data.TiledMapData(tmx_data)
         map_layer = pyscroll.orthographic.BufferedRenderer(map_data, self.screen.get_size())
-        map_layer.zoom = 2
+        map_layer.zoom = 5
 
         # Les collisions
         walls = []
@@ -98,7 +130,7 @@ class MapManager:
                 walls.append(pygame.Rect(obj.x, obj.y, obj.width, obj.height))
 
         # Dessiner les différents calques
-        group = pyscroll.PyscrollGroup(map_layer=map_layer, default_layer=10)
+        group = pyscroll.PyscrollGroup(map_layer=map_layer, default_layer=17)
         group.add(self.player)
 
         #recuperer tout les npcs pour les ajouter au groupe
@@ -107,9 +139,18 @@ class MapManager:
         
         for enemy in enemies:
             group.add(enemy)
+            enemy.walls = walls
 
-        #creer un objet ma 
-        self.maps[name] = Map(name, walls, group, tmx_data, npcs,enemies, portals)
+        items = []
+        for obj in tmx_data.objects:
+            if obj.type == "healing_item":
+                amount = int(obj.properties.get("amount", 10))
+                item = HealingItem(obj.x, obj.y, amount)
+                items.append(item)
+                group.add(item)
+
+    
+        self.maps[name] = Map(name, walls, group, tmx_data, npcs,enemies, portals, items)
 
 
     def get_map(self): return self.maps[self.current_map]

@@ -11,21 +11,16 @@ from animation import HeartDisplay
 
 class Game:
 
-    def __init__(self):
-        # Démarrage
+    def __init__(self, screen):   
+
         self.running = True
         self.map = "map"
 
+        self.screen = screen         
 
-        # Affichage de la fenêtre
-        self.screen = pygame.display.set_mode((1920, 1200))
-        pygame.display.set_caption("BasiqueGame")
-
- 
-        # Générer le joeur
-        self.player = Player(0,0,0)
+        self.player = Player(0, 0, 0)
         self.map_manager = MapManager(self.screen, self.player)
-        
+
         self.dialog_box = DialogBox()
 
         self.clock = pygame.time.Clock()
@@ -39,10 +34,7 @@ class Game:
         self.map_height = tmx.height * tmx.tileheight
 
         self.heart_value = 10
-
-# in Game.__init__
         self.heart_display = HeartDisplay(self.player)
-
 
     def handle_input(self):
         pressed = pygame.key.get_pressed()
@@ -59,21 +51,17 @@ class Game:
             self.player.move_left()
         else:
             self.player.stop()
-        
+
         # Melee attack
         if pressed[pygame.K_SPACE]:
             self.player.melee_attack()
 
-                
-              
     def update(self):
         self.map_manager.update()
-
         self.player.update()
 
         for bullet in self.projectiles[:]:
             bullet.update()
-
             if bullet.off_screen(self.map_width, self.map_height):
                 self.projectiles.remove(bullet)
 
@@ -84,19 +72,15 @@ class Game:
                     self.projectiles.remove(bullet)
                     break
 
-      
         if self.player.action == "attack" and getattr(self.player, "current_attack_rect", None):
             attack_rect = self.player.current_attack_rect
             for enemy in self.enemies:
-                # Debug
                 print("FOUND ENEMY!", enemy.rect)
                 print("Player attacking:", attack_rect)
-
                 if attack_rect.colliderect(enemy.rect):
                     print("Enemy took damage!")
                     enemy.take_damage(self.player.melee_damage)
                     print("enemy health:", enemy.health)
-
             self.player.current_attack_rect = None
 
         if self.player.action == "attack" and self.player.clock >= 100:
@@ -104,7 +88,7 @@ class Game:
                 self.player.action = "run"
             else:
                 self.player.action = "idle"
-               
+
         for enemy in self.enemies[:]:
             if enemy.is_dead():
                 self.map_manager.get_group().remove(enemy)
@@ -112,13 +96,10 @@ class Game:
 
         if self.player.is_dead():
             print("Player died!")
-            self.running = False    
+            self.running = False
 
     def run(self):
-
-        # Clock
         while self.running:
-
             self.player.save_location()
             self.handle_input()
             self.update()
@@ -136,4 +117,3 @@ class Game:
 
             self.clock.tick(60)
 
-        pygame.quit()
