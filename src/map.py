@@ -56,6 +56,22 @@ class MapManager:
 
             if sprite.feet.collidelist(self.get_walls())> -1:
                 sprite.move_back()
+
+        for npc in self.get_map().npcs:
+            if self.player.feet.colliderect(npc.feet):
+                self.player.move_back()
+
+        enemies = self.get_map().enemies
+        for i, enemy in enumerate(enemies):
+            for other in enemies[i+1:]:
+                if enemy.feet.colliderect(other.feet):
+                    enemy.move_back()
+                    other.move_back()
+                    
+        for enemy in self.get_map().enemies:
+            if self.player.feet.colliderect(enemy.feet):
+                self.player.move_back()
+
         for item in self.get_map().items:
             if self.player.rect.colliderect(item.rect):
                 self.player.health = min(self.player.health + item.amount, self.player.max_health)
@@ -94,6 +110,7 @@ class MapManager:
         
         for enemy in enemies:
             group.add(enemy)
+            enemy.walls = walls
 
         items = []
         for obj in tmx_data.objects:

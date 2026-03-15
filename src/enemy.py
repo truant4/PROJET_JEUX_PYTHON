@@ -97,9 +97,24 @@ class Enemy(NPC):
         step_x = min(self.speed, abs(dx)) * (1 if dx > 0 else -1) if dx != 0 else 0
         step_y = min(self.speed, abs(dy)) * (1 if dy > 0 else -1) if dy != 0 else 0
 
+        self.save_location()
+
         # Update position
         self.position[0] += step_x
+        self.rect.topleft = tuple(self.position)
+        self.feet.midbottom = self.rect.midbottom
+        if self.feet.collidelist(self.walls) > -1:
+            self.move_back()
+            step_x = 0
+
+
+        self.save_location()
         self.position[1] += step_y
+        self.rect.topleft = tuple(self.position)
+        self.feet.midbottom = self.rect.midbottom
+        if self.feet.collidelist(self.walls) > -1:
+            self.move_back()
+            step_y = 0
 
         # Set move_vector for attacks and collisions
         self.move_vector = (step_x, step_y)
