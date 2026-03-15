@@ -2524,8 +2524,8 @@
 </data>
  </layer>
  <objectgroup id="16" name="player"/>
- <objectgroup id="15" name="collisions" class="collision" visible="0">
-  <object id="23" name="player" x="426.667" y="590.997" width="34" height="29.6667"/>
+ <objectgroup id="15" name="collisions" class="collision">
+  <object id="23" name="player" x="416.667" y="690.33" width="34" height="29.6667"/>
   <object id="37" type="collision" x="0.5" y="1458.33" width="325.75" height="125.667"/>
   <object id="43" type="collision" x="986.5" y="1199.75" width="58.5" height="25.5"/>
   <object id="397" type="collision" x="943.875" y="1214.63" width="16.375" height="17.375"/>
@@ -2667,8 +2667,8 @@
   <object id="395" type="collision" x="1120.75" y="850.916" width="13.6667" height="10.375"/>
   <object id="394" type="collision" x="1505.75" y="594.249" width="13.6667" height="13"/>
   <object id="387" type="collision" x="161.75" y="753.583" width="13.6667" height="13"/>
-  <object id="384" type="collision" x="373" y="496.416" width="22.9167" height="13"/>
-  <object id="385" type="collision" x="469" y="881.083" width="22.9167" height="13"/>
+  <object id="384" type="collision" x="373" y="493.689" width="22.9167" height="19.4773"/>
+  <object id="385" type="collision" x="469" y="878.083" width="22.9167" height="18.75"/>
   <object id="128" type="collision" x="25.5833" y="1058.25" width="21" height="28.25"/>
   <object id="127" type="collision" x="111.583" y="1073.58" width="21" height="28.25"/>
   <object id="126" type="collision" x="188.583" y="1074.92" width="21" height="28.25"/>
@@ -2706,8 +2706,8 @@
   <object id="241" type="collision" x="796.894" y="220.985" width="21" height="19.25"/>
   <object id="243" type="collision" x="652.894" y="188.803" width="21" height="19.25"/>
   <object id="244" type="collision" x="573.257" y="188.803" width="21" height="19.25"/>
-  <object id="381" type="collision" x="449.439" y="252.439" width="28.8182" height="17.0682"/>
-  <object id="382" type="collision" x="274.348" y="252.258" width="28.8182" height="17.0682"/>
+  <object id="381" type="collision" x="449.439" y="252.439" width="28.8182" height="22.7349"/>
+  <object id="382" type="collision" x="274.348" y="252.258" width="28.8182" height="21.7349"/>
   <object id="245" type="collision" x="477.257" y="188.985" width="21" height="19.25"/>
   <object id="246" type="collision" x="444.894" y="156.985" width="21" height="19.25"/>
   <object id="247" type="collision" x="284.712" y="156.803" width="21" height="19.25"/>
@@ -2791,10 +2791,10 @@
   <object id="62" type="collision" x="178.333" y="1108.67" width="27.6667" height="26.6667">
    <ellipse/>
   </object>
-  <object id="66" type="collision" x="466.333" y="1344" width="27.6667" height="13.3333"/>
-  <object id="68" type="collision" x="466.667" y="1183.67" width="27.6667" height="13.3333"/>
-  <object id="69" type="collision" x="209.667" y="1216.33" width="27.6667" height="13.3333"/>
-  <object id="396" type="collision" x="227.303" y="1249.06" width="25.8485" height="13.3333"/>
+  <object id="66" type="collision" x="465.833" y="1342" width="27.6667" height="21.8333"/>
+  <object id="68" type="collision" x="466.167" y="1181.67" width="27.6667" height="23"/>
+  <object id="69" type="collision" x="210.031" y="1215.18" width="27.6667" height="17.8788"/>
+  <object id="396" type="collision" x="227.636" y="1251.06" width="25.8485" height="13.3333"/>
   <object id="75" type="collision" x="295.5" y="837.75" width="62" height="5.25"/>
   <object id="409" type="collision" x="1319.33" y="1301.67" width="62" height="5.25"/>
   <object id="76" type="collisions" x="298.25" y="835.5" width="56.75" height="2.75"/>
@@ -2807,7 +2807,7 @@
   <object id="405" type="collisions" x="1336.33" y="1278.29" width="30.5" height="8.125"/>
   <object id="80" type="collision" x="304.5" y="824.5" width="47" height="6.75"/>
   <object id="406" type="collision" x="1328.33" y="1288.42" width="47" height="6.75"/>
-  <object id="82" type="collision" x="812" y="475.333" width="55.6667" height="37.6663"/>
+  <object id="82" type="collision" x="812" y="475.333" width="55.6667" height="34.6663"/>
   <object id="83" type="collision" x="811.667" y="546" width="56.3333" height="610.667"/>
   <object id="84" type="collision" x="813" y="515" width="17.4242" height="13.6667"/>
   <object id="85" type="collision" x="848.152" y="529.333" width="17.8485" height="14.6667"/>
@@ -2844,7 +2844,7 @@
    <ellipse/>
   </object>
  </objectgroup>
- <objectgroup id="14" name="NPCPaths">
+ <objectgroup id="14" name="NPCPaths" visible="0">
   <object id="29" name="paul_path1" x="896.333" y="1247.67" width="15.3333" height="16.3333"/>
   <object id="30" name="paul_path2" x="1152" y="1248" width="15.6667" height="16.3333"/>
   <object id="31" name="paul_path3" x="1152" y="1296.33" width="16" height="15.6667"/>
