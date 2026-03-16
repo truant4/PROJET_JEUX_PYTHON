@@ -18,17 +18,17 @@ class Game:
 
 
         # Affichage de la fenêtre
-        self.screen = pygame.display.set_mode((1920, 1200))
+        self.screen = pygame.display.set_mode((1980, 1080))
         pygame.display.set_caption("BasiqueGame")
 
  
+        self.clock = pygame.time.Clock()
         # Générer le joeur
-        self.player = Player(0,0,0)
-        self.map_manager = MapManager(self.screen, self.player)
+        self.player = Player("player",0,0)
+        self.map_manager = MapManager(self.screen, self.player,self.clock)
         
         self.dialog_box = DialogBox()
 
-        self.clock = pygame.time.Clock()
         self.attack_rect = None
         self.projectiles = []
         self.enemies = self.map_manager.get_map().enemies
@@ -38,10 +38,14 @@ class Game:
         self.map_width = tmx.width * tmx.tilewidth
         self.map_height = tmx.height * tmx.tileheight
 
+
         self.heart_value = 10
 
 # in Game.__init__
         self.heart_display = HeartDisplay(self.player)
+        self.player.game_clock = self.clock
+        for enemy in self.map_manager.get_map().enemies:
+            enemy.game_clock = self.clock
 
 
     def handle_input(self):
@@ -49,17 +53,23 @@ class Game:
 
         if pressed[pygame.K_ESCAPE]:
             self.running = False
-        elif pressed[pygame.K_UP]:
+
+        # Reset movement each frame
+        self.player.move_vector = (0, 0)
+
+        if pressed[pygame.K_UP]:
             self.player.move_up()
-        elif pressed[pygame.K_DOWN]:
+        if pressed[pygame.K_DOWN]:
             self.player.move_down()
-        elif pressed[pygame.K_RIGHT]:
+        if pressed[pygame.K_RIGHT]:
             self.player.move_right()
-        elif pressed[pygame.K_LEFT]:
+        if pressed[pygame.K_LEFT]:
             self.player.move_left()
-        else:
+
+        # If no movement happened → idle
+        if self.player.move_vector == (0,0):
             self.player.stop()
-        
+
         # Melee attack
         if pressed[pygame.K_SPACE]:
             self.player.melee_attack()
@@ -70,32 +80,24 @@ class Game:
         self.map_manager.update()
 
         self.player.update()
-
-        for bullet in self.projectiles[:]:
-            bullet.update()
-
-            if bullet.off_screen(self.map_width, self.map_height):
-                self.projectiles.remove(bullet)
-
-        for bullet in self.projectiles[:]:
-            for enemy in self.enemies:
-                if bullet.rect.colliderect(enemy.rect):
-                    enemy.take_damage(self.player.ranged_damage)
-                    self.projectiles.remove(bullet)
-                    break
-
       
         if self.player.action == "attack" and getattr(self.player, "current_attack_rect", None):
             attack_rect = self.player.current_attack_rect
             for enemy in self.enemies:
-                # Debug
-                print("FOUND ENEMY!", enemy.rect)
-                print("Player attacking:", attack_rect)
-
+                enemy.save_location()
                 if attack_rect.colliderect(enemy.rect):
-                    print("Enemy took damage!")
                     enemy.take_damage(self.player.melee_damage)
-                    print("enemy health:", enemy.health)
+
+                    # --- APPLY KNOCKBACK ---
+                    dx = enemy.rect.centerx - self.player.rect.centerx
+                    dy = enemy.rect.centery - self.player.rect.centery
+
+                    distance = max((dx**2 + dy**2) ** 0.5, 1)  # prevent division by zero
+                    knockback_strength = 2  # pixels per frame
+
+                    enemy.knockback_vector = (dx/distance * knockback_strength, dy/distance * knockback_strength)
+                    enemy.knockback_timer = enemy.knockback_duration
+                    enemy.can_attack = False
 
             self.player.current_attack_rect = None
 
@@ -112,7 +114,8 @@ class Game:
 
         if self.player.is_dead():
             print("Player died!")
-            self.running = False    
+            self.running = False
+        
 
     def run(self):
 
@@ -120,6 +123,8 @@ class Game:
         while self.running:
 
             self.player.save_location()
+            for enemy in self.enemies:
+                enemy.save_location()
             self.handle_input()
             self.update()
             self.map_manager.draw()
@@ -134,6 +139,6 @@ class Game:
                     if event.key == pygame.K_e:
                         self.map_manager.check_npc_collisions(self.dialog_box)
 
-            self.clock.tick(60)
+            self.clock.tick(40)
 
         pygame.quit()

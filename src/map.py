@@ -2,7 +2,7 @@ from dataclasses import dataclass
 import pygame, pytmx, pyscroll
 import dialog
 from player import *
-from enemy import Enemy
+from enemy import Enemy, Goblin, Slime
 
 @dataclass
 class Map:
@@ -15,10 +15,11 @@ class Map:
 
 class MapManager:
      
-    def __init__(self, screen, player):
+    def __init__(self, screen, player,clock):
           self.maps = dict()
           self.screen = screen
           self.player = player
+          self.clock = clock
           self.current_map = "map"
           self.enemies = []
           self.register_map("map", npcs=[
@@ -26,8 +27,9 @@ class MapManager:
               NPC("robin", nb_points= 2, dialog=["coucou", "cool", "au revoir"]),
               ],
               enemies=[
-                Enemy("boss1",self.player,nb_points=2),
-                Enemy("boss2",self.player,nb_points=2)
+                Slime("slime1",self.player,nb_points=2),
+                Slime("slime2",self.player,nb_points=2),
+                Goblin("goblin1",self.player,nb_points=2)
             ])
 
           
@@ -82,7 +84,10 @@ class MapManager:
             group.add(npc)
         
         for enemy in enemies:
+            enemy.game_clock = self.clock
             group.add(enemy)
+
+
 
         #creer un objet ma 
         self.maps[name] = Map(name, walls, group, tmx_data, npcs,enemies)
