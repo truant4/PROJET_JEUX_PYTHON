@@ -11,6 +11,7 @@ class Portals:
     origin_point: str
     target_world: str
     teleport_point: str
+from enemy import Enemy, Goblin, Slime
 
 @dataclass
 class Map:
@@ -25,11 +26,22 @@ class Map:
 
 class MapManager:
      
-    def __init__(self, screen, player):
-        self.maps = dict()
-        self.screen = screen
-        self.player = player
-        self.current_map = "map"
+    def __init__(self, screen, player,clock):
+          self.maps = dict()
+          self.screen = screen
+          self.player = player
+          self.clock = clock
+          self.current_map = "map"
+          self.enemies = []
+          self.register_map("map", npcs=[
+              NPC("paul", nb_points = 4, dialog=["Salut", "bien", "au revoir"]),
+              NPC("robin", nb_points= 2, dialog=["coucou", "cool", "au revoir"]),
+              ],
+              enemies=[
+                Slime("slime1",self.player,nb_points=2),
+                Slime("slime2",self.player,nb_points=2),
+                Goblin("goblin1",self.player,nb_points=2)
+            ])
 
         self.enemies = []
         self.register_map("map", npcs=[
@@ -142,6 +154,7 @@ class MapManager:
             group.add(npc)
         
         for enemy in enemies:
+            enemy.game_clock = self.clock
             group.add(enemy)
             enemy.walls = walls
 
@@ -155,6 +168,10 @@ class MapManager:
 
     
         self.maps[name] = Map(name, walls, group, tmx_data, npcs,enemies, items, portals)
+
+
+        #creer un objet ma 
+        self.maps[name] = Map(name, walls, group, tmx_data, npcs,enemies,items,portals)
 
 
     def get_map(self): return self.maps[self.current_map]

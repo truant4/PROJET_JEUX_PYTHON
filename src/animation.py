@@ -1,18 +1,157 @@
+from os import walk
 import pygame
 
 class AnimateSprite(pygame.sprite.Sprite):
-    def __init__(self, name):
+    def __init__(self, name, sprite_type="player"):
         super().__init__()
-        self.sprite_sheet = pygame.image.load(f"assets/sprites/{name}.png").convert_alpha()
-
-        self.animation_index = 0
-        self.clock = 0
-        self.speed = 2
 
         self.frame_size = 32
         self.frames_per_anim = 3
 
-        # Load all animations
+        self.animation_index = 0
+        self.clock = 0
+        self.speed = 2
+        self.action = "idle"
+        self.direction = "down"
+
+
+        self.animation_priority = {
+            "idle": 0,
+            "run": 0,
+            "attack": 1,
+            "hurt": 2,
+            "death": 3
+        }
+
+
+        if sprite_type == "slime":
+            self.slime_animation()
+        elif sprite_type == "goblin":
+            self.goblin_animation()
+        else:
+            self.sprite_sheet = pygame.image.load(
+                f"assets/sprites/{name}.png"
+            ).convert_alpha()
+            self.load_player_style()
+
+        self.image = self.images[self.action][self.direction][0]
+
+
+
+    def slime_animation(self):
+        self.frame_size = 64
+
+        walk = pygame.image.load("assets/sprites/Slime/Blue-Slime/walk.png").convert_alpha()
+        attack = pygame.image.load("assets/sprites/Slime/Blue-Slime/attack.png").convert_alpha()
+        idle = pygame.image.load("assets/sprites/Slime/Blue-Slime/idle.png").convert_alpha()
+        hurt = pygame.image.load("assets/sprites/Slime/Blue-Slime/hurt.png").convert_alpha()
+        death = pygame.image.load("assets/sprites/Slime/Blue-Slime/death.png").convert_alpha()
+
+        self.images = {
+            "idle": {"down": self.slice_sheet(idle)},
+            "run": {"down": self.slice_sheet(walk)},
+            "attack": {"down": self.slice_sheet(attack)},
+            "hurt": {"down": self.slice_sheet(hurt)},
+            "death": {"down": self.slice_sheet(death)}
+        }
+
+        for action in self.images:
+            frames = self.images[action]["down"]
+            self.images[action]["up"] = frames
+            self.images[action]["left"] = [
+                pygame.transform.flip(img, True, False) for img in frames
+            ]
+            self.images[action]["right"] = frames
+
+
+
+
+
+
+    def goblin_animation(self):
+        self.frame_size = 64
+
+        walk = pygame.image.load("assets/sprites/Goblin/walk.png").convert_alpha()
+        attack = pygame.image.load("assets/sprites/Goblin/attack.png").convert_alpha()
+        idle = pygame.image.load("assets/sprites/Goblin/idle.png").convert_alpha()
+        hurt = pygame.image.load("assets/sprites/Goblin/hurt.png").convert_alpha()
+        death = pygame.image.load("assets/sprites/Goblin/death.png").convert_alpha()
+
+        self.images = {
+            "idle": {"right": self.slice_sheet(idle)},
+            "run": {"right": self.slice_sheet(walk)},
+            "attack": {"right": self.slice_sheet(attack)},
+            "hurt": {"right": self.slice_sheet(hurt)},
+            "death": {"right": self.slice_sheet(death)}
+        }
+
+        for action in self.images:
+            right_frames = self.images[action]["right"]
+
+            self.images[action]["left"] = [
+                pygame.transform.flip(img, True, False) for img in right_frames
+            ]
+
+            self.images[action]["up"] = right_frames
+            self.images[action]["down"] = right_frames
+
+
+
+
+
+
+    def slice_sheet(self, sheet):
+        frames = []
+
+        frame_height = sheet.get_height()
+        frame_width = frame_height   # assumes square frames
+
+        num_frames = sheet.get_width() // frame_width
+
+        for i in range(num_frames):
+            image = pygame.Surface((frame_width, frame_height), pygame.SRCALPHA)
+            image.blit(sheet, (0, 0), (i * frame_width, 0, frame_width, frame_height))
+            frames.append(image)
+
+        return frames
+
+
+
+    def change_animation(self, action, direction):
+        if self.animation_priority[action] >= self.animation_priority[self.action]:
+            if action != self.action:
+                self.action = action
+                self.animation_index = 0
+                self.clock = 0
+
+        self.direction = direction
+
+        frames = self.images[self.action][self.direction]
+
+        self.clock += self.speed * 8
+        if self.clock >= 100:
+            self.animation_index += 1
+            self.clock = 0
+
+            if self.animation_index >= len(frames):
+                if self.action == "attack":
+                    self.animation_index = len(frames) - 1
+                else:
+                    self.animation_index = 0
+
+        
+        self.animation_index = min(self.animation_index, len(frames) - 1)
+        self.image = frames[self.animation_index]
+
+    def get_images(self, y):
+        return [self.get_image(i * self.frame_size, y) for i in range(self.frames_per_anim)]
+
+    def get_image(self, x, y):
+        image = pygame.Surface((self.frame_size, self.frame_size), pygame.SRCALPHA)
+        image.blit(self.sprite_sheet, (0, 0), (x, y, self.frame_size, self.frame_size))
+        return image
+
+    def load_player_style(self):
         self.images = {
             "idle": {
                 "down": self.get_images(0),
@@ -32,31 +171,13 @@ class AnimateSprite(pygame.sprite.Sprite):
         }
 
         for action in ["idle", "run", "attack"]:
-            self.images[action]["left"] = [pygame.transform.flip(img, True, False) for img in self.images[action]["right"]]
-
-        self.image = self.images["idle"]["down"][0]
-
-    def change_animation(self, action, direction):
-        frames = self.images[action][direction]
-        self.image = frames[self.animation_index]
-
-        self.clock += self.speed * 8
-        if self.clock >= 100:
-            self.animation_index += 1
-            if self.animation_index >= len(frames):
-                self.animation_index = 0
-            self.clock = 0
-
-    def get_images(self, y):
-        return [self.get_image(i * self.frame_size, y) for i in range(self.frames_per_anim)]
-
-    def get_image(self, x, y):
-        image = pygame.Surface((self.frame_size, self.frame_size), pygame.SRCALPHA)
-        image.blit(self.sprite_sheet, (0, 0), (x, y, self.frame_size, self.frame_size))
-        return image
+            self.images[action]["left"] = [
+                pygame.transform.flip(img, True, False)
+                for img in self.images[action]["right"]
+            ]
 
 class HeartDisplay:
-    def __init__(self, player, heart_path="assets/sprites/hearts/heartDisplay.png", heart_value=10):
+    def __init__(self, player, heart_path="assets/sprites/hearts/heartDisplay.png", heart_value=20):
         self.player = player
         self.heart_value = heart_value
         self.heart_image = pygame.image.load(heart_path)

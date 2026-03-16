@@ -3,15 +3,16 @@ from animation import AnimateSprite
 from données import PLAYER_SIZE, PLAYER_SPEED, PLAYER_COLOR
 from projectile import Projectile
 class Entity(AnimateSprite):
-    def __init__(self, name, x, y):
-        super().__init__(name)
+    def __init__(self, name, x, y,sprite_type="player"):
+        super().__init__(name,sprite_type)
 
         # Position and old position
         self.position = [x, y]
         self.old_position = self.position.copy()
 
+
+
         # Animation state
-        self.direction = "down"      # string for animation keys
         self.action = "idle"         # "idle", "run", "attack"
 
         # Movement vector for collisions
@@ -28,37 +29,31 @@ class Entity(AnimateSprite):
     # Movement methods
     def move_right(self):
         self.direction = "right"
-        self.action = "run"
         self.position[0] += self.speed
         self.move_vector = (1, 0)
 
     def move_left(self):
         self.direction = "left"
-        self.action = "run"
         self.position[0] -= self.speed
         self.move_vector = (-1, 0)
 
     def move_up(self):
         self.direction = "up"
-        self.action = "run"
         self.position[1] -= self.speed
         self.move_vector = (0, -1)
 
     def move_down(self):
         self.direction = "down"
-        self.action = "run"
         self.position[1] += self.speed
         self.move_vector = (0, 1)
 
     # Stop moving (idle)
     def stop(self):
         self.direction = self.direction
-        self.action = "idle"
         self.move_vector = (0, 0)
 
     # Attack animation
     def attack(self):
-        self.action = "attack"
         self.direction = self.direction
         self.animation_index = 0
         self.move_vector = (0, 0)  # usually stop movement when attacking
@@ -82,6 +77,10 @@ class Entity(AnimateSprite):
 class Player(Entity):
     def __init__(self, name, x, y):
         super().__init__("Player", x, y)
+        self.knockback_vector = [0, 0]
+        self.knockback_timer = 0
+        self.knockback_duration = 200  # ms
+        self.knockback_speed = 4
 
         # Stats
         self.health = 100
@@ -99,11 +98,24 @@ class Player(Entity):
         self.last_ranged_time = 0
 
     # Health
-    def take_dmg(self, amount):
+    def take_dmg(self, amount, source_pos=None):
         self.health -= amount
         if self.health < 0:
             self.health = 0
 
+        # Apply knockback if we know where the hit came from
+        if source_pos:
+            px, py = self.rect.center
+            sx, sy = source_pos
+
+            dx = px - sx
+            dy = py - sy
+
+            length = max((dx**2 + dy**2) ** 0.5, 0.001)
+
+            self.knockback_vector[0] = (dx / length) * self.knockback_speed
+            self.knockback_vector[1] = (dy / length) * self.knockback_speed
+            self.knockback_timer = self.knockback_duration
     def is_dead(self):
         return self.health <= 0
 
@@ -115,6 +127,7 @@ class Player(Entity):
 
         self.last_melee_time = now
         self.action = "attack"  # trigger attack animation
+        self.animation_index = 0
 
         # Determine attack target rectangle based on facing
         attack_range = 40  # distance in pixels for melee
@@ -140,36 +153,40 @@ class Player(Entity):
         return attack_rect
 
     def update(self):
-        super().update()  # AnimateSprite update
+                # Handle knockback
+        if self.knockback_timer > 0:
+            self.position[0] += self.knockback_vector[0]
+            self.position[1] += self.knockback_vector[1]
 
+            # decrease timer using frame delta
+            self.knockback_timer -= self.game_clock.get_time()
+
+            if self.knockback_timer <= 0:
+                self.knockback_timer = 0
+                self.knockback_vector = [0, 0]
+
+            super().update()
+            return
         if self.action == "attack":
-            if self.clock >= 100:  # when animation ends
+            self.change_animation("attack", self.direction)
+
+            if self.animation_index == self.frames_per_anim - 1:
                 if self.move_vector != (0,0):
                     self.action = "run"
                 else:
                     self.action = "idle"
-    # Ranged attack
-    def ranged_attack(self):
-        now = pygame.time.get_ticks()
 
-        if now - self.last_ranged_time < self.ranged_cooldown or self.move_vector == (0, 0):
-            return None
+        else:
+            if self.move_vector != (0,0):
+                self.change_animation("run", self.direction)
+            else:
+                self.change_animation("idle", self.direction)
 
-        self.last_ranged_time = now
-        dx, dy = self.move_vector
-
-        return Projectile(
-            self.rect.centerx,
-            self.rect.centery,
-            5,  # speed
-            (255, 255, 0),  # color
-            dx,
-            dy
-        )
+        super().update()
 
 class NPC(Entity):
-    def __init__(self, name, nb_points, dialog):
-        super().__init__(name, 0, 0)
+    def __init__(self, name, nb_points, dialog,sprite_type="player"):
+        super().__init__(name, 0, 0,sprite_type)
         self.nb_points = nb_points
         self.dialog = dialog
         self.points = []
