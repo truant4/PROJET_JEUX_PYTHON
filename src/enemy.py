@@ -153,7 +153,7 @@ class Enemy(NPC):
 
                 if abs(self.rect.centerx - patrol_point[0]) <= self.speed and \
                    abs(self.rect.centery - patrol_point[1]) <= self.speed:
-                    self.current_point = (self.current_point + 1) % self.nb_points
+                   self.current_point = (self.current_point + 1) % self.nb_points      
             else:
                 self.action = "idle"
 
@@ -178,7 +178,8 @@ class Enemy(NPC):
 
         step_x = min(self.speed, abs(dx)) * (1 if dx > 0 else -1) if dx != 0 else 0
         step_y = min(self.speed, abs(dy)) * (1 if dy > 0 else -1) if dy != 0 else 0
-
+        self.position[0] += step_x
+        self.position[1] += step_y
         self.save_location()
 
         # Update position

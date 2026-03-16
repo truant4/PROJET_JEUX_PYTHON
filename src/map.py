@@ -6,7 +6,7 @@ from enemy import Enemy
 from items import HealingItem
 
 @dataclass
-class Portals:
+class Portals():
     from_world: str
     origin_point: str
     target_world: str
@@ -24,7 +24,7 @@ class Map:
     items: list
     portals : list[Portals]
 
-class MapManager:
+class MapManager():
      
     def __init__(self, screen, player,clock):
           self.maps = dict()
@@ -34,34 +34,24 @@ class MapManager:
           self.current_map = "map"
           self.enemies = []
           self.register_map("map", npcs=[
-              NPC("paul", nb_points = 4, dialog=["Salut", "bien", "au revoir"]),
-              NPC("robin", nb_points= 2, dialog=["coucou", "cool", "au revoir"]),
-              ],
-              enemies=[
-                Slime("slime1",self.player,nb_points=2),
-                Slime("slime2",self.player,nb_points=2),
-                Goblin("goblin1",self.player,nb_points=2)
-            ])
-
-        self.enemies = []
-        self.register_map("map", npcs=[
             NPC("paul", nb_points = 4, dialog=["Salut", "bien", "au revoir"]),
             NPC("robin", nb_points= 2, dialog=["coucou", "cool", "au revoir"]),
             ],
             enemies=[
-            Enemy("boss1",self.player,nb_points=2),
-            Enemy("boss2",self.player,nb_points=2)
+            Slime("slime1",self.player,nb_points=2),
+            Slime("slime2",self.player,nb_points=2),
+            Goblin("goblin1",self.player,nb_points=2)
         ],
         portals=[
             Portals(from_world="map", origin_point="enter_housse", target_world="test", teleport_point="spawn_housse")
         ])
-        self.register_map("test", portals=[
+          self.register_map("test", portals=[
             Portals(from_world="test", origin_point="exit_housse", target_world="map", teleport_point="enter_housse_exit" )
         ])
 
-        self.teleportation_player("player")
-        self.teleport_npcs()
-        # self.teleport_enemies()
+          self.teleportation_player("player")
+          self.teleport_npcs()
+        # self.teleport_enem
 
     def check_npc_collisions(self, dialog_box):
         for sprite in self.get_group().sprites():
