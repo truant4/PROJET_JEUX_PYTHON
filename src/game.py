@@ -74,36 +74,26 @@ class Game:
             self.player.melee_attack()
 
     def update(self):
-        self.map_manager.update()
-        self.player.update()
-
-
+        # Check attack FIRST before anything moves
         if self.player.action == "attack" and getattr(self.player, "current_attack_rect", None):
             attack_rect = self.player.current_attack_rect
             for enemy in self.enemies:
-                print("FOUND ENEMY!", enemy.rect)
-                print("Player attacking:", attack_rect)
-      
-        if self.player.action == "attack" and getattr(self.player, "current_attack_rect", None):
-            attack_rect = self.player.current_attack_rect
-            for enemy in self.enemies:
-                enemy.save_location()
-                if attack_rect.colliderect(enemy.rect):
+                print(f"enemy.feet={enemy.feet} | attack_rect={attack_rect} | collides={attack_rect.colliderect(enemy.feet)}")
+                if attack_rect.colliderect(enemy.feet):
+                    print("HIT via feet!")
                     enemy.take_damage(self.player.melee_damage)
-                    print("enemy health:", enemy.health)
-
-                    # --- APPLY KNOCKBACK ---
-                    dx = enemy.rect.centerx - self.player.rect.centerx
-                    dy = enemy.rect.centery - self.player.rect.centery
-
-                    distance = max((dx**2 + dy**2) ** 0.5, 1)  # prevent division by zero
-                    knockback_strength = 2  # pixels per frame
-
-                    enemy.knockback_vector = (dx/distance * knockback_strength, dy/distance * knockback_strength)
+                    dx = enemy.feet.centerx - self.player.feet.centerx
+                    dy = enemy.feet.centery - self.player.feet.centery
+                    distance = max((dx**2 + dy**2) ** 0.5, 1)
+                    knockback_strength = 2
+                    enemy.knockback_vector = (dx / distance * knockback_strength, dy / distance * knockback_strength)
                     enemy.knockback_timer = enemy.knockback_duration
                     enemy.can_attack = False
-
             self.player.current_attack_rect = None
+
+        # Then update everything
+        self.map_manager.update()
+        self.player.update()
 
         if self.player.action == "attack" and self.player.clock >= 100:
             if self.player.move_vector != (0, 0):
