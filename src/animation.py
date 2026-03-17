@@ -216,23 +216,29 @@ class AnimateSprite(pygame.sprite.Sprite):
     def load_player_style(self):
         self.images = {
             "idle": {
-                "down": self.get_images(0),
+                "down":  self.get_images(0),
                 "right": self.get_images(32),
-                "up": self.get_images(64)
+                "up":    self.get_images(64)
             },
             "run": {
-                "down": self.get_images(96),
+                "down":  self.get_images(96),
                 "right": self.get_images(128),
-                "up": self.get_images(160)
+                "up":    self.get_images(160)
             },
             "attack": {
-                "down": self.get_images(192),
+                "down":  self.get_images(192),
                 "right": self.get_images(224),
-                "up": self.get_images(256)
+                "up":    self.get_images(256)
+            },
+            "death": {
+                "down":  self.get_images(288),  # row 9 = y=288
+                "right": self.get_images(288),
+                "up":    self.get_images(288),
+                "left":  self.get_images(288),  # same frames for all directions
             }
         }
 
-        for action in ["idle", "run", "attack"]:
+        for action in ["idle", "run", "attack"]:  # ← death excluded, already has all directions
             self.images[action]["left"] = [
                 pygame.transform.flip(img, True, False)
                 for img in self.images[action]["right"]

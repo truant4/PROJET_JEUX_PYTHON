@@ -23,6 +23,9 @@ class Game:
         self.screen = pygame.display.set_mode((1980, 1080))
         pygame.display.set_caption("BasiqueGame")
 
+        self.death_timer = None
+        self.death_delay = 2000
+
  
         self.clock = pygame.time.Clock()
         # Générer le joeur
@@ -105,10 +108,15 @@ class Game:
             if not enemy.alive():  # sprite.alive() returns False after kill() is called
                 self.enemies.remove(enemy)
 
-        if self.player.is_dead():
-            print("Player died!")
-            self.running = False
-        
+        if self.player.is_dead() and self.death_timer is None:
+            self.player.action = "death"  # trigger animation
+            self.death_timer = pygame.time.get_ticks()
+
+        if self.death_timer is not None:
+            elapsed = pygame.time.get_ticks() - self.death_timer
+            if elapsed >= self.death_delay:
+                print("Player died!")
+                self.running = False
 
     def run(self):
         while self.running:
