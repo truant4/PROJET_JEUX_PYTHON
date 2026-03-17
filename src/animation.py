@@ -33,6 +33,13 @@ class AnimateSprite(pygame.sprite.Sprite):
                 f"assets/sprites/NPCS.png"
             ).convert_alpha()
             self.npc_animation(npc_col)
+
+        elif sprite_type == "boss":
+            self.sprite_sheet = pygame.image.load(
+                f"assets/sprites/boss.png"
+            ).convert_alpha()
+            self.load_boss_style()
+
         else:
             self.sprite_sheet = pygame.image.load(
                 f"assets/sprites/{name}.png"
@@ -229,6 +236,55 @@ class AnimateSprite(pygame.sprite.Sprite):
                 pygame.transform.flip(img, True, False)
                 for img in self.images[action]["right"]
             ]
+
+
+    def load_boss_style(self):
+        self.frame_size= 80
+        self.frames_per_anim= 8
+        FRAME_W = 80
+        FRAME_H = 80
+
+        self.images = {
+            "idle": {
+                "down": self.get_images(0 * FRAME_H),
+                "right": self.get_images(0 * FRAME_H),
+                "up": self.get_images(0 * FRAME_H)
+                
+            },
+            "run": {
+                "down": self.get_images(0 * FRAME_H),
+                "right": self.get_images(0 * FRAME_H),
+                "up": self.get_images(0 * FRAME_H)
+            },
+            "attack": {
+                "down": self.get_images(1 * FRAME_H),
+                "right": self.get_images(1 * FRAME_H),
+                "up": self.get_images(1 * FRAME_H)
+
+            },  
+            "hurt": {
+                "down": self.get_images(2 * FRAME_H),
+                "right": self.get_images(2 * FRAME_H),
+                "up": self.get_images(2 * FRAME_H)
+
+            },
+            "death": {
+                "down": self.get_images(3 * FRAME_H),
+                "right": self.get_images(3 * FRAME_H),
+                "up": self.get_images(3 * FRAME_H)
+
+            }
+
+        }
+
+        for action in ["idle", "run", "attack","hurt","death"]:
+            if self.action == "hurt":
+                self.frames_per_anim =2
+            self.images[action]["left"] = [
+                pygame.transform.flip(img, True, False)
+                for img in self.images[action]["right"]
+            ]
+        
 
 class HeartDisplay:
     def __init__(self, player, heart_path="assets/sprites/hearts/heartDisplay.png", heart_value=20):

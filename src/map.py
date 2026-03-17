@@ -2,7 +2,7 @@
 import pygame, pytmx, pyscroll
 import dialog
 from player import *
-from enemy import Enemy
+from enemy import *
 from items import HealingItem
 
 @dataclass
@@ -34,13 +34,14 @@ class MapManager():
           self.current_map = "map"
           self.enemies = []
           self.register_map("map", npcs=[
-            NPC("paul", nb_points = 4, dialog=["Salut", "bien", "au revoir"],npc_col=1),
-            NPC("robin", nb_points= 2, dialog=["coucou", "cool", "au revoir"],npc_col=0),
+            NPC("paul", nb_points = 4, dialog=["Salut", "bien", "au revoir"],npc_col=0),
+            NPC("robin", nb_points= 2, dialog=["coucou", "cool", "au revoir"],npc_col=1),
             ],
             enemies=[
             Slime("slime1",self.player,nb_points=2),
             Slime("slime2",self.player,nb_points=2),
-            Goblin("goblin1",self.player,nb_points=2)
+            Goblin("goblin1",self.player,nb_points=2),
+            Boss("boss", self.player, nb_points=1)
         ],
         portals=[
             Portals(from_world="map", origin_point="enter_housse", target_world="test", teleport_point="spawn_housse")
