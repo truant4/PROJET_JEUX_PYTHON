@@ -178,6 +178,7 @@ class Enemy(NPC):
 
     # --- Movement ---
 
+
     def move_toward(self, target_x, target_y):
         dx = target_x - self.rect.centerx
         dy = target_y - self.rect.centery
@@ -192,9 +193,24 @@ class Enemy(NPC):
 
         self.rect.topleft = tuple(self.position)
         self.feet.midbottom = self.rect.midbottom
+
         if self.feet.collidelist(self.walls) > -1:
-            self.move_back()
-            step_y = 0
+            # Reculer pixel par pixel jusqu'à sortir du wall
+            while self.feet.collidelist(self.walls) > -1:
+                self.position[0] -= (1 if step_x > 0 else -1)
+                self.rect.topleft = tuple(self.position)
+                self.feet.midbottom = self.rect.midbottom
+
+
+        self.position[1] += step_y
+        self.rect.topleft = tuple(self.position)
+        self.feet.midbottom = self.rect.midbottom
+        if self.feet.collidelist(self.walls) > -1:
+            while self.feet.collidelist(self.walls) > -1:
+                self.position[1] -= (1 if step_y > 0 else -1)
+                self.rect.topleft = tuple(self.position)
+                self.feet.midbottom = self.rect.midbottom
+        # Set move_vector for attacks and collisions
 
         # Set move_vector for attacks and collisions
 
