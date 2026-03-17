@@ -85,13 +85,14 @@ class Game:
                 if attack_rect.colliderect(enemy.feet):
                     print("HIT via feet!")
                     enemy.take_damage(self.player.melee_damage)
-                    dx = enemy.feet.centerx - self.player.feet.centerx
-                    dy = enemy.feet.centery - self.player.feet.centery
-                    distance = max((dx**2 + dy**2) ** 0.5, 1)
-                    knockback_strength = 2
-                    enemy.knockback_vector = (dx / distance * knockback_strength, dy / distance * knockback_strength)
-                    enemy.knockback_timer = enemy.knockback_duration
-                    enemy.can_attack = False
+                    if not getattr(enemy,"immune_to_knockback",False):
+                        dx = enemy.feet.centerx - self.player.feet.centerx
+                        dy = enemy.feet.centery - self.player.feet.centery
+                        distance = max((dx**2 + dy**2) ** 0.5, 1)
+                        knockback_strength = 2
+                        enemy.knockback_vector = (dx / distance * knockback_strength, dy / distance * knockback_strength)
+                        enemy.knockback_timer = enemy.knockback_duration
+                        enemy.can_attack = False
             self.player.current_attack_rect = None
 
         # Then update everything

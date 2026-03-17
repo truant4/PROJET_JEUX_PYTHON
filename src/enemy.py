@@ -55,14 +55,14 @@ class Enemy(NPC):
             self.action = "death"
             self.animation_index = 0
         else:
-            # Interrupt attack windup if hit
-            if self.attacking:
+            if self.attacking and not getattr(self, "immune_to_interupt", False):
                 self.attacking = False
                 self.attacking_timer = 0
                 self.attack_timer = 0
-
-            self.action = "hurt"
-            self.animation_index = 0
+                self.animation_index = 0
+                self.action = "hurt"  # ← only hurt if attack was interrupted
+            elif not self.attacking:
+                self.action = "hurt"  # ← hurt normally when not attacking
 
     def is_dead(self):
         return self.health <= 0
@@ -81,7 +81,15 @@ class Enemy(NPC):
             self.rect.topleft = tuple(self.position)
             self.feet.midbottom = self.rect.midbottom
             return
-
+        if self.action == "hurt" and getattr(self,"has_hurt_recovery",False):
+            frames = self.images["hurt"][self.direction]
+            self.change_animation("hurt", self.direction)
+            if self.animation_index >= len(frames) - 1:
+                self.action = "idle"
+                self.animation_index = 0
+            self.rect.topleft = tuple(self.position)
+            self.feet.midbottom = self.rect.midbottom
+            return
         # Lock enemy during attack windup
         if self.attacking:
             self.attacking_timer -= self.game_clock.get_time()
@@ -270,8 +278,12 @@ class Boss(Enemy):
             health=500,
             damage=40,
             speed=0.4,
+            animation_speed=1.5,
             detection_range=200,
             attack_range=40,
-            attack_cooldown=1000
+            attack_cooldown=20000
         )
         self.attack_windup = 3000
+        self.immune_to_knockback = True
+        self.immune_to_interupt = True
+        self.has_hurt_recovery = True

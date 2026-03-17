@@ -198,7 +198,7 @@ class AnimateSprite(pygame.sprite.Sprite):
             self.clock = 0
 
             if self.animation_index >= len(frames):
-                if self.action in ("attack", "death"):
+                if self.action in ("attack", "death","hurt"):
                     self.animation_index = len(frames) - 1
                 else:
                     self.animation_index = 0
@@ -285,9 +285,7 @@ class AnimateSprite(pygame.sprite.Sprite):
         }
 
         for action in ["idle", "run", "attack","hurt","death"]:
-            if self.action == "hurt":
-                self.frames_per_anim =2
-            self.images[action]["left"] = [
+           self.images[action]["left"] = [
                 pygame.transform.flip(img, True, False)
                 for img in self.images[action]["right"]
             ]
