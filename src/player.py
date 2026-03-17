@@ -130,20 +130,16 @@ class Player(Entity):
         self.animation_index = 0
 
         # Determine attack target rectangle based on facing
-        attack_range = 40  # distance in pixels for melee
+        attack_range = 10
         px, py = self.rect.center
-        dx, dy = self.move_vector
 
-        # Create a small rect in the facing direction
-        attack_rect = pygame.Rect(px, py, self.rect.width, self.rect.height)
-
-        if dx > 0:  # right
+        if self.direction == "right":
             attack_rect = pygame.Rect(self.rect.right, self.rect.top, attack_range, self.rect.height)
-        elif dx < 0:  # left
+        elif self.direction == "left":
             attack_rect = pygame.Rect(self.rect.left - attack_range, self.rect.top, attack_range, self.rect.height)
-        elif dy > 0:  # down
+        elif self.direction == "down":
             attack_rect = pygame.Rect(self.rect.left, self.rect.bottom, self.rect.width, attack_range)
-        elif dy < 0:  # up
+        elif self.direction == "up":
             attack_rect = pygame.Rect(self.rect.left, self.rect.top - attack_range, self.rect.width, attack_range)
         else:
             attack_rect = pygame.Rect(self.rect.topleft, (self.rect.width, self.rect.height))
