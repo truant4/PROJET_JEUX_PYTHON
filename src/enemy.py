@@ -268,3 +268,19 @@ class Goblin(Enemy):
         )
         self.attack_windup = 2350
 
+
+class Boss(Enemy):
+    def __init__(self, name, player, nb_points=0):
+        super().__init__(
+            name,
+            player,
+            nb_points=nb_points,
+            enemy_type="boss",  # déclenche boss_animation dans AnimateSprite
+            health=500,
+            damage=40,
+            speed=0.4,
+            detection_range=200,
+            attack_range=40,
+            attack_cooldown=1000
+        )
+        self.attack_windup = 3000
