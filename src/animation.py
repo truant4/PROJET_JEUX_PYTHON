@@ -190,20 +190,21 @@ class AnimateSprite(pygame.sprite.Sprite):
         self.direction = direction
         frames = self.images[self.action][self.direction]
 
-        self.clock += self.speed * 8
+        anim_speed = getattr(self, "animation_speed", self.speed)  # ← use animation_speed if available
+        self.clock += anim_speed * 8
+
         if self.clock >= 100:
             self.animation_index += 1
             self.clock = 0
 
             if self.animation_index >= len(frames):
-                if self.action in ("attack", "death"):  # ← add death here
+                if self.action in ("attack", "death"):
                     self.animation_index = len(frames) - 1
                 else:
                     self.animation_index = 0
 
         self.animation_index = min(self.animation_index, len(frames) - 1)
         self.image = frames[self.animation_index]
-
     def get_images(self, y):
         return [self.get_image(i * self.frame_size, y) for i in range(self.frames_per_anim)]
 

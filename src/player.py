@@ -130,7 +130,7 @@ class Player(Entity):
         self.animation_index = 0
 
         # Determine attack target rectangle based on facing
-        attack_range = 10
+        attack_range = 1
         px, py = self.rect.center
 
         if self.direction == "right":

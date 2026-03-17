@@ -1,5 +1,6 @@
 import pygame
 from animation import AnimateSprite
+import animation
 from player import NPC
 from projectile import Projectile
 
@@ -8,12 +9,12 @@ class Enemy(NPC):
     def __init__(self, name, player, nb_points=0, dialog=[],
                  detection_range=100, speed=0.5, health=100,
                  damage=20, attack_range=25, attack_cooldown=800,
-                 enemy_type="slime"):
+                 enemy_type="slime",animation_speed=.5):
 
         super().__init__(name, nb_points=nb_points, dialog=dialog, sprite_type=enemy_type)
 
         self.player = player
-
+        self.animation_speed = animation_speed
         # Stats
         self.health = health
         self.max_health = health
@@ -227,42 +228,37 @@ class Enemy(NPC):
             self.player.take_dmg(self.damage, self.rect.center)
             self.last_attack_time = pygame.time.get_ticks()
 
-
 class Slime(Enemy):
-
     def __init__(self, name, player, nb_points=0):
         super().__init__(
-            name,
-            player,
+            name, player,
             nb_points=nb_points,
             enemy_type="slime",
             health=100,
             damage=10,
-            speed=.9,
+            speed=0.5,           # movement speed
+            animation_speed=1.5,   # animation speed — independent
             detection_range=120,
             attack_range=20,
-            attack_cooldown=500
+            attack_cooldown=800
         )
-        self.attack_windup = 4000
-
+        self.attack_windup = 2500
 
 class Goblin(Enemy):
-
     def __init__(self, name, player, nb_points=0):
         super().__init__(
-            name,
-            player,
+            name, player,
             nb_points=nb_points,
             enemy_type="goblin",
             health=100,
             damage=20,
-            speed=0.9,
-            detection_range=180,
+            speed=0.5,           # movement speed
+            animation_speed=1.5,   # animation speed — independent
+            detection_range=60,
             attack_range=25,
             attack_cooldown=600
         )
-        self.attack_windup = 2350
-
+        self.attack_windup = 1600
 
 class Boss(Enemy):
     def __init__(self, name, player, nb_points=0):
