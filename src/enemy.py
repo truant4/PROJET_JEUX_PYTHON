@@ -48,7 +48,6 @@ class Enemy(NPC):
         if self.action == "death":
             return
 
-        self.health -= amount
 
         if self.health <= 0:
             self.health = 0
@@ -61,8 +60,11 @@ class Enemy(NPC):
                 self.attack_timer = 0
                 self.animation_index = 0
                 self.action = "hurt"  # ← only hurt if attack was interrupted
+                self.health -= amount
             elif not self.attacking:
                 self.action = "hurt"  # ← hurt normally when not attacking
+                self.health -= amount
+
 
     def is_dead(self):
         return self.health <= 0
