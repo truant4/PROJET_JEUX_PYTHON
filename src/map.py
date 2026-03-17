@@ -34,8 +34,8 @@ class MapManager():
           self.current_map = "map"
           self.enemies = []
           self.register_map("map", npcs=[
-            NPC("paul", nb_points = 4, dialog=["Salut", "bien", "au revoir"],npc_col=0),
-            NPC("robin", nb_points= 2, dialog=["coucou", "cool", "au revoir"],npc_col=1),
+            NPC("paul", nb_points = 4, dialog=["Salut", "bien", "au revoir"],npc_col=1),
+            NPC("robin", nb_points= 2, dialog=["coucou", "cool", "au revoir"],npc_col=0),
             ],
             enemies=[
             Slime("slime1",self.player,nb_points=2),
@@ -55,7 +55,7 @@ class MapManager():
 
     def check_npc_collisions(self, dialog_box):
         for sprite in self.get_group().sprites():
-            if sprite.feet.colliderect(self.player.rect) and type(sprite) is NPC:
+            if type(sprite) is NPC and sprite.feet.colliderect(self.player.rect):
                 dialog_box.execute(sprite.dialog)
 
     def check_collisions(self):
@@ -77,27 +77,17 @@ class MapManager():
                 else :
                     sprite.speed = 1
                     
+        # Walls pour le player uniquement
+        if self.player.feet.collidelist(self.get_walls()) > -1:
+            self.player.move_back()
 
-
-        for sprite in self.get_group().sprites():
-            if isinstance(sprite, HealingItem):
-                continue
-            if sprite.feet.collidelist(self.get_walls()) > -1:
-                sprite.move_back()
+        # Walls pour les NPCs uniquement
+        for npc in self.get_map().npcs:
+            if npc.feet.collidelist(self.get_walls()) > -1:
+                npc.move_back()
 
         for npc in self.get_map().npcs:
             if self.player.feet.colliderect(npc.feet):
-                self.player.move_back()
-
-        enemies = self.get_map().enemies
-        for i, enemy in enumerate(enemies):
-            for other in enemies[i+1:]:
-                if enemy.feet.colliderect(other.feet):
-                    enemy.move_back()
-                    other.move_back()
-                    
-        for enemy in self.get_map().enemies:
-            if self.player.feet.colliderect(enemy.feet):
                 self.player.move_back()
 
         for item in self.get_map().items:
@@ -130,11 +120,24 @@ class MapManager():
 
         # Les collisions
         walls = []
+        walls_enemy =[]
+
+        tile_height = tmx_data.tileheight
 
         for obj in tmx_data.objects:
             if obj.type == "collision":
-                walls.append(pygame.Rect(obj.x, obj.y, obj.width, obj.height))
-
+                walls.append(pygame.Rect(
+                    obj.x,
+                    obj.y,
+                    obj.width,
+                    obj.height
+                ))
+                walls_enemy.append(pygame.Rect(
+                    obj.x,
+                    obj.y + tile_height,
+                    obj.width,
+                    obj.height
+                ))
         # Dessiner les différents calques
         group = pyscroll.PyscrollGroup(map_layer=map_layer, default_layer=17)
         group.add(self.player)
@@ -146,7 +149,7 @@ class MapManager():
         for enemy in enemies:
             enemy.game_clock = self.clock
             group.add(enemy)
-            enemy.walls = walls
+            enemy.walls = walls_enemy
 
         items = []
         for obj in tmx_data.objects:
@@ -187,11 +190,12 @@ class MapManager():
             for npc in map_data.npcs:
                 npc.teleport_spawn()
             for enemy in map_data.enemies:
-                enemy.teleport_spawn()  # <- parentheses!
+                enemy.teleport_spawn() 
 
     def draw(self):
         self.get_group().draw(self.screen)
         self.get_group().center(self.player.rect.center)
+
 
     def update(self):
         self.get_group().update()
