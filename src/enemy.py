@@ -6,7 +6,7 @@ from projectile import Projectile
 
 class Enemy(NPC):
     def __init__(self, name, player, nb_points=0, dialog=[],
-                 detection_range=100, speed=0.5, health=100,
+                 detection_range=100, speed=0.2, health=100,
                  damage=20, attack_range=25, attack_cooldown=800,
                  enemy_type="slime"):
 
@@ -40,6 +40,8 @@ class Enemy(NPC):
         self.knockback_duration = 300
         self.can_attack = True
         self.pending_player_knockback = None
+
+        self.feet = pygame.Rect(0, 0, self.rect.width * 0.6, self.rect.height * 0.3)
 
     # --- Health ---
 
@@ -175,20 +177,41 @@ class Enemy(NPC):
     def move_toward(self, target_x, target_y):
         dx = target_x - self.rect.centerx
         dy = target_y - self.rect.centery
+        self.direction = self.get_facing_direction(dx, dy)
 
         step_x = min(self.speed, abs(dx)) * (1 if dx > 0 else -1) if dx != 0 else 0
         step_y = min(self.speed, abs(dy)) * (1 if dy > 0 else -1) if dy != 0 else 0
-        self.position[0] += step_x
-        self.position[1] += step_y
         self.save_location()
 
-        # Update position
 
+  
+        self.position[0] += step_x
         self.rect.topleft = tuple(self.position)
         self.feet.midbottom = self.rect.midbottom
         if self.feet.collidelist(self.walls) > -1:
-            self.move_back()
-            step_y = 0
+            # Reculer pixel par pixel jusqu'à sortir du wall
+            while self.feet.collidelist(self.walls) > -1:
+                self.position[0] -= (1 if step_x > 0 else -1)
+                self.rect.topleft = tuple(self.position)
+                self.feet.midbottom = self.rect.midbottom
+
+
+        self.position[1] += step_y
+        self.rect.topleft = tuple(self.position)
+        self.feet.midbottom = self.rect.midbottom
+        if self.feet.collidelist(self.walls) > -1:
+            while self.feet.collidelist(self.walls) > -1:
+                self.position[1] -= (1 if step_y > 0 else -1)
+                self.rect.topleft = tuple(self.position)
+                self.feet.midbottom = self.rect.midbottom
+
+        # Update position
+
+        # self.rect.topleft = tuple(self.position)
+        # self.feet.midbottom = self.rect.midbottom
+        # if self.feet.collidelist(self.walls) > -1:
+        #     self.move_back()
+        #     step_y = 0
 
         # Set move_vector for attacks and collisions
 
@@ -214,7 +237,7 @@ class Slime(Enemy):
             enemy_type="slime",
             health=100,
             damage=10,
-            speed=.9,
+            speed=0.5,
             detection_range=120,
             attack_range=20,
             attack_cooldown=500
@@ -232,9 +255,10 @@ class Goblin(Enemy):
             enemy_type="goblin",
             health=100,
             damage=20,
-            speed=0.9,
+            speed=0.7,
             detection_range=180,
             attack_range=25,
             attack_cooldown=600
         )
         self.attack_windup = 2350
+
