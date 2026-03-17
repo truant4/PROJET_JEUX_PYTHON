@@ -3,8 +3,8 @@ from animation import AnimateSprite
 from données import PLAYER_SIZE, PLAYER_SPEED, PLAYER_COLOR
 from projectile import Projectile
 class Entity(AnimateSprite):
-    def __init__(self, name, x, y,sprite_type="player"):
-        super().__init__(name,sprite_type)
+    def __init__(self, name, x, y,sprite_type="player",npc_col=0):
+        super().__init__(name,sprite_type,npc_col)
 
         # Position and old position
         self.position = [x, y]
@@ -185,8 +185,8 @@ class Player(Entity):
         super().update()
 
 class NPC(Entity):
-    def __init__(self, name, nb_points, dialog,sprite_type="player"):
-        super().__init__(name, 0, 0,sprite_type)
+    def __init__(self, name, nb_points, dialog,sprite_type="npc",npc_col=0):
+        super().__init__(name, 0, 0,sprite_type,npc_col)
         self.nb_points = nb_points
         self.dialog = dialog
         self.points = []
