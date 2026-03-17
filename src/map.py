@@ -34,8 +34,8 @@ class MapManager():
           self.current_map = "map"
           self.enemies = []
           self.register_map("map", npcs=[
-            NPC("paul", nb_points = 4, dialog=["Salut", "bien", "au revoir"]),
-            NPC("robin", nb_points= 2, dialog=["coucou", "cool", "au revoir"]),
+            NPC("paul", nb_points = 4, dialog=["Salut", "bien", "au revoir"],npc_col=0),
+            NPC("robin", nb_points= 2, dialog=["coucou", "cool", "au revoir"],npc_col=1),
             ],
             enemies=[
             Slime("slime1",self.player,nb_points=2),
@@ -55,7 +55,7 @@ class MapManager():
 
     def check_npc_collisions(self, dialog_box):
         for sprite in self.get_group().sprites():
-            if sprite.feet.colliderect(self.player.rect) and type(sprite) is NPC:
+            if type(sprite) is NPC and sprite.feet.colliderect(self.player.rect):
                 dialog_box.execute(sprite.dialog)
 
     def check_collisions(self):

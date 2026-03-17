@@ -112,8 +112,7 @@ class Game:
                 self.player.action = "idle"
 
         for enemy in self.enemies[:]:
-            if enemy.is_dead():
-                self.map_manager.get_group().remove(enemy)
+            if not enemy.alive():  # sprite.alive() returns False after kill() is called
                 self.enemies.remove(enemy)
 
         if self.player.is_dead():
@@ -137,7 +136,7 @@ class Game:
                 if event.type == pygame.QUIT:
                     self.running = False
                 elif event.type == pygame.KEYDOWN:
-                    if event.key == pygame.K_e:
+                    if event.key == pygame.K_t:
                         self.map_manager.check_npc_collisions(self.dialog_box)
 
             self.clock.tick(40)

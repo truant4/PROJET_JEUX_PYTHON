@@ -71,10 +71,16 @@ class Enemy(NPC):
     # --- Update per frame ---
 
     def update(self):
-        """AI: detect, chase player, patrol, and update animation."""
-
         if self.action == "death":
+            frames = self.images["death"][self.direction]
             self.change_animation("death", self.direction)
+            
+            # Once last frame is reached, remove the sprite
+            if self.animation_index >= len(frames) - 1:
+                self.kill()
+            
+            self.rect.topleft = tuple(self.position)
+            self.feet.midbottom = self.rect.midbottom
             return
 
         # Lock enemy during attack windup
