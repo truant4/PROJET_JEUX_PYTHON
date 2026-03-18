@@ -1,6 +1,6 @@
 from os import walk
 import pygame
-
+import enemy
 class AnimateSprite(pygame.sprite.Sprite):
     def __init__(self, name, sprite_type="player", npc_col = 0):
         super().__init__()
@@ -334,3 +334,45 @@ class HeartDisplay:
         return image
 
 
+class BossBar:
+    def __init__(self, boss, sheet_path="assets/sprites/Boss/HUD_Boss.png", scale=4):
+        self.boss = boss
+        sheet = pygame.image.load(sheet_path).convert_alpha()
+        frame_w = sheet.get_width()  # 80
+
+        self.empty_image = pygame.transform.scale(
+            sheet.subsurface((0, 8, frame_w, 16)),  # rows 8-24 = boss icon + empty frame
+            (frame_w * scale, 16 * scale)
+        )
+        self.fill_image = pygame.transform.scale(
+            sheet.subsurface((0, 24, frame_w, 8)),  # rows 24-32 = red fill
+            (frame_w * scale, 8 * scale)
+        )
+
+        self.frame_w = frame_w * scale
+        self.frame_h = 16 * scale  # taller now
+        self.fill_w  = frame_w * scale
+        self.fill_h  = 8 * scale
+
+        self.scale = scale
+        self.frame_w = frame_w * scale
+        self.frame_h = 16 * scale
+        self.fill_w  = 78 * scale
+        self.fill_h  = 8  * scale
+
+    def draw(self, screen):
+        if not self.boss.awake:
+            return
+
+        screen_w = screen.get_width()
+        x = (screen_w - self.frame_w) // 2
+        y = screen.get_height() - self.frame_h - 20
+
+        # 1. Red fill bar at the bottom of the frame, cropped from the right
+        fill_ratio = self.boss.health / self.boss.max_health
+        fill_width = int(self.fill_w * fill_ratio)
+        fill_y = y + self.frame_h - self.fill_h  # align to bottom of frame
+        screen.blit(self.fill_image, (x, fill_y), (0, 0, fill_width, self.fill_h))
+
+        # 2. Empty frame on top
+        screen.blit(self.empty_image, (x, y))

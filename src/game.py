@@ -3,11 +3,11 @@ import pytmx
 import pyscroll
 from dialog import DialogBox
 from données import WIDTH, HEIGHT, FPS, BG_COLOR, PLAYER_SIZE
-from enemy import Enemy
+from enemy import Enemy,Boss
 from projectile import Projectile
 from player import *
 from map import *
-from animation import HeartDisplay
+from animation import HeartDisplay, BossBar
 
 class Game:
 
@@ -46,6 +46,10 @@ class Game:
 
         self.heart_value = 10
         self.heart_display = HeartDisplay(self.player)
+
+# find the boss among enemies
+        self.boss = next((e for e in self.enemies if isinstance(e, Boss)), None)
+        self.boss_bar = BossBar(self.boss) if self.boss else None
         self.player.game_clock = self.clock
         for enemy in self.map_manager.get_map().enemies:
             enemy.game_clock = self.clock
@@ -131,6 +135,8 @@ class Game:
             self.update()
             self.map_manager.draw()
             self.heart_display.draw(self.screen)
+            if self.boss_bar:
+                self.boss_bar.draw(self.screen)            
             self.dialog_box.render(self.screen)
             pygame.display.flip()
 
