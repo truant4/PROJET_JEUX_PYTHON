@@ -27,28 +27,28 @@ class Map:
 class MapManager():
      
     def __init__(self, screen, player,clock):
-          self.maps = dict()
-          self.screen = screen
-          self.player = player
-          self.clock = clock
-          self.current_map = "map"
-          self.enemies = []
-          self.register_map("map", npcs=[
+        self.maps = dict()
+        self.screen = screen
+        self.player = player
+        self.clock = clock
+        self.current_map = "map"
+        self.enemies = []
+        self.register_map("map", npcs=[
             NPC("paul", nb_points = 4, dialog=["Salut", "bien", "au revoir"],npc_col=0),
             NPC("robin", nb_points= 2, dialog=["coucou", "cool", "au revoir"],npc_col=1),
             ],
             enemies=[
-            Slime("slime1",self.player,nb_points=2),
-            Slime("slime2",self.player,nb_points=2),
-            Goblin("goblin1",self.player,nb_points=2),
-            Boss("boss", self.player, nb_points=1)
-        ],
+                Slime("slime1",self.player,nb_points=2),
+                Slime("slime2",self.player,nb_points=2),
+                Goblin("goblin1",self.player,nb_points=2),
+                Boss("boss", self.player, nb_points=1)
+            ],
             portals=[
                 Portals(from_world="map", origin_point="enter_house1", target_world="house1", teleport_point="spawn_house1"),
                 Portals(from_world="map", origin_point="enter_house2", target_world="house2", teleport_point="spawn_house2"),
                 Portals(from_world="map", origin_point="enter_dungeon", target_world="dungeon", teleport_point="spawn_dungeon"),
                 Portals(from_world="map", origin_point="enter_house3", target_world="house3", teleport_point="spawn_house3")
-        ])
+            ])
         self.register_map("house1", portals=[
             Portals(from_world="house1", origin_point="enter_room1", target_world="house1_room1", teleport_point="spawn_room1_house1" ),
             Portals(from_world="house1", origin_point="exit_house1", target_world="map", teleport_point="enter_exit_house1" )
