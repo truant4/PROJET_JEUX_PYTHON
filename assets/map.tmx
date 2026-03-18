@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<map version="1.10" tiledversion="1.11.2" orientation="orthogonal" renderorder="right-down" width="107" height="110" tilewidth="16" tileheight="16" infinite="0" nextlayerid="33" nextobjectid="447">
+<map version="1.10" tiledversion="1.11.2" orientation="orthogonal" renderorder="right-down" width="107" height="110" tilewidth="16" tileheight="16" infinite="0" nextlayerid="33" nextobjectid="448">
  <tileset firstgid="1" source="tiles/Floors_Tiles.tsx"/>
  <tileset firstgid="651" source="tiles/Farm.tsx"/>
  <tileset firstgid="1276" source="tiles/Rocks.tsx"/>
@@ -2867,6 +2867,7 @@
   </object>
  </objectgroup>
  <objectgroup id="31" name="items">
-  <object id="437" name="healing_item_1" type="healing_item" x="520" y="1334.5" width="27.5" height="22"/>
+  <object id="437" name="healing_item_1" type="healing_item" x="577" y="884.5" width="27.5" height="22"/>
+  <object id="447" name="heart1" type="heart" x="742" y="831" width="27.5" height="22"/>
  </objectgroup>
 </map>

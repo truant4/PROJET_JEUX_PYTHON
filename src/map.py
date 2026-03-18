@@ -3,7 +3,7 @@ import pygame, pytmx, pyscroll
 import dialog
 from player import *
 from enemy import *
-from items import HealingItem
+from items import HealingItem, HeartReceptacle
 
 @dataclass
 class Portals():
@@ -22,6 +22,7 @@ class Map:
     npcs: list[NPC]
     enemies: list
     items: list
+    hearts : list
     portals : list[Portals]
 
 class MapManager():
@@ -81,7 +82,7 @@ class MapManager():
 
 
         for sprite in self.get_group().sprites():
-            if isinstance(sprite, HealingItem):
+            if isinstance(sprite, (HealingItem, HeartReceptacle)):
                 continue
             if sprite.feet.collidelist(self.get_walls()) > -1:
                 sprite.move_back()
@@ -101,12 +102,21 @@ class MapManager():
             if self.player.feet.colliderect(enemy.feet):
                 self.player.move_back()
 
+
+
         for item in self.get_map().items:
             if self.player.rect.colliderect(item.rect):
                 self.player.health = min(self.player.health + item.amount, self.player.max_health)
                 item.kill()
                 self.get_map().items.remove(item)
-            
+
+        for heart in self.get_map().hearts:
+            if self.player.rect.colliderect(heart.rect):
+                self.player.max_health += 20
+                self.player.health = self.player.max_health
+                heart.kill()
+                self.get_map().hearts.remove(heart)
+
 
     def teleportation_player(self,name):
         point = self.get_object(name)
@@ -157,12 +167,19 @@ class MapManager():
                 items.append(item)
                 group.add(item)
 
+        hearts = []
+        for obj in tmx_data.objects:
+            if obj.type == "heart":
+                heart = HeartReceptacle(obj.x, obj.y)
+                hearts.append(heart)
+                group.add(heart)
+
     
-        self.maps[name] = Map(name, walls, group, tmx_data, npcs,enemies, items, portals)
+        self.maps[name] = Map(name, walls, group, tmx_data, npcs,enemies, items, hearts, portals)
 
 
         #creer un objet ma 
-        self.maps[name] = Map(name, walls, group, tmx_data, npcs,enemies,items,portals)
+        self.maps[name] = Map(name, walls, group, tmx_data, npcs,enemies,items, hearts, portals)
 
 
     def get_map(self): return self.maps[self.current_map]
