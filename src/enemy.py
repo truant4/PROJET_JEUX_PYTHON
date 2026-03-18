@@ -1,5 +1,6 @@
 import pygame
 from animation import AnimateSprite
+import animation
 from player import NPC
 from projectile import Projectile
 
@@ -8,12 +9,12 @@ class Enemy(NPC):
     def __init__(self, name, player, nb_points=0, dialog=[],
                  detection_range=100, speed=0.5, health=100,
                  damage=20, attack_range=25, attack_cooldown=800,
-                 enemy_type="slime"):
+                 enemy_type="slime",animation_speed=.5):
 
         super().__init__(name, nb_points=nb_points, dialog=dialog, sprite_type=enemy_type)
 
         self.player = player
-
+        self.animation_speed = animation_speed
         # Stats
         self.health = health
         self.max_health = health
@@ -46,22 +47,26 @@ class Enemy(NPC):
     def take_damage(self, amount):
         if self.action == "death":
             return
+        # Don't interrupt an ongoing hurt animation
+        if self.action == "hurt" and getattr(self, "has_hurt_recovery", False):
+            return
 
-        self.health -= amount
+        self.health -= amount  # ← also move this BEFORE the <= 0 check
 
         if self.health <= 0:
             self.health = 0
             self.action = "death"
             self.animation_index = 0
-        else:
-            # Interrupt attack windup if hit
-            if self.attacking:
-                self.attacking = False
-                self.attacking_timer = 0
-                self.attack_timer = 0
+            return
 
-            self.action = "hurt"
-            self.animation_index = 0
+        if self.attacking and not getattr(self, "immune_to_interupt", False):
+            self.attacking = False
+            self.attacking_timer = 0
+            self.attack_timer = 0
+
+        self.action = "hurt"
+        self.animation_index = 0
+        self.clock = 0  # ← reset clock so animation starts clean
 
     def is_dead(self):
         return self.health <= 0
@@ -69,12 +74,27 @@ class Enemy(NPC):
     # --- Update per frame ---
 
     def update(self):
-        """AI: detect, chase player, patrol, and update animation."""
-
         if self.action == "death":
+            frames = self.images["death"][self.direction]
             self.change_animation("death", self.direction)
+            
+            # Once last frame is reached, remove the sprite
+            if self.animation_index >= len(frames) - 1:
+                self.kill()
+            
+            self.rect.topleft = tuple(self.position)
+            self.feet.midbottom = self.rect.midbottom
             return
-
+        if self.action == "hurt" and getattr(self, "has_hurt_recovery", False):
+            frames = self.images["hurt"][self.direction]
+            self.change_animation("hurt", self.direction)
+            if self.animation_index >= len(frames) - 1:
+                self.action = "idle"
+                self.animation_index = 0
+                self.clock = 0  # ← add this
+            self.rect.topleft = tuple(self.position)
+            self.feet.midbottom = self.rect.midbottom
+            return
         # Lock enemy during attack windup
         if self.attacking:
             self.attacking_timer -= self.game_clock.get_time()
@@ -172,23 +192,41 @@ class Enemy(NPC):
 
     # --- Movement ---
 
+
     def move_toward(self, target_x, target_y):
         dx = target_x - self.rect.centerx
         dy = target_y - self.rect.centery
 
+        # ← ADD THIS
+        self.direction = self.get_facing_direction(dx, dy)
+
         step_x = min(self.speed, abs(dx)) * (1 if dx > 0 else -1) if dx != 0 else 0
         step_y = min(self.speed, abs(dy)) * (1 if dy > 0 else -1) if dy != 0 else 0
         self.position[0] += step_x
-        self.position[1] += step_y
         self.save_location()
 
         # Update position
 
         self.rect.topleft = tuple(self.position)
         self.feet.midbottom = self.rect.midbottom
+
         if self.feet.collidelist(self.walls) > -1:
-            self.move_back()
-            step_y = 0
+            # Reculer pixel par pixel jusqu'à sortir du wall
+            while self.feet.collidelist(self.walls) > -1:
+                self.position[0] -= (1 if step_x > 0 else -1)
+                self.rect.topleft = tuple(self.position)
+                self.feet.midbottom = self.rect.midbottom
+
+
+        self.position[1] += step_y
+        self.rect.topleft = tuple(self.position)
+        self.feet.midbottom = self.rect.midbottom
+        if self.feet.collidelist(self.walls) > -1:
+            while self.feet.collidelist(self.walls) > -1:
+                self.position[1] -= (1 if step_y > 0 else -1)
+                self.rect.topleft = tuple(self.position)
+                self.feet.midbottom = self.rect.midbottom
+        # Set move_vector for attacks and collisions
 
         # Set move_vector for attacks and collisions
 
@@ -203,38 +241,88 @@ class Enemy(NPC):
             self.player.take_dmg(self.damage, self.rect.center)
             self.last_attack_time = pygame.time.get_ticks()
 
-
 class Slime(Enemy):
-
     def __init__(self, name, player, nb_points=0):
         super().__init__(
-            name,
-            player,
+            name, player,
             nb_points=nb_points,
             enemy_type="slime",
             health=100,
             damage=10,
-            speed=.9,
+            speed=0.5,           # movement speed
+            animation_speed=1.5,   # animation speed — independent
             detection_range=120,
             attack_range=20,
-            attack_cooldown=500
+            attack_cooldown=800
         )
-        self.attack_windup = 4000
-
+        self.attack_windup = 2500
 
 class Goblin(Enemy):
+    def __init__(self, name, player, nb_points=0):
+        super().__init__(
+            name, player,
+            nb_points=nb_points,
+            enemy_type="goblin",
+            health=100,
+            damage=20,
+            speed=0.5,           # movement speed
+            animation_speed=1.5,   # animation speed — independent
+            detection_range=60,
+            attack_range=25,
+            attack_cooldown=600
+        )
+        self.attack_windup = 1600
 
+class Boss(Enemy):
     def __init__(self, name, player, nb_points=0):
         super().__init__(
             name,
             player,
             nb_points=nb_points,
-            enemy_type="goblin",
-            health=100,
-            damage=20,
-            speed=0.9,
-            detection_range=180,
-            attack_range=25,
-            attack_cooldown=600
+            enemy_type="boss",  # déclenche boss_animation dans AnimateSprite
+            health=300,
+            damage=40,
+            speed=0.4,
+            animation_speed=1,
+            detection_range=200,
+            attack_range=40,
+            attack_cooldown=1500
         )
-        self.attack_windup = 2350
+        self.attack_windup = 1300
+        self.immune_to_knockback = True
+        self.immune_to_interupt = True
+        self.has_hurt_recovery = True
+
+
+    def take_damage(self, amount):
+        if self.action == "death":
+            return
+
+        # Boss : l'attaque ne peut pas être interrompue par hurt
+        if getattr(self, "immune_to_interupt", False) and self.attacking:
+            self.health -= amount
+            if self.health <= 0:
+                self.health = 0
+                self.action = "death"
+                self.animation_index = 0
+            return  # ← on encaisse les dégâts mais on ne change pas l'action
+
+        if self.action == "hurt" and getattr(self, "has_hurt_recovery", False):
+            return
+
+        self.health -= amount
+        if self.health <= 0:
+            self.health = 0
+            self.action = "death"
+            self.animation_index = 0
+            return
+
+        if self.attacking and not getattr(self, "immune_to_interupt", False):
+            self.attacking = False
+            self.attacking_timer = 0
+            self.attack_timer = 0
+
+        self.action = "hurt"
+        self.animation_index = 0
+        self.clock = 0
+    

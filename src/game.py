@@ -23,6 +23,9 @@ class Game:
         self.screen = pygame.display.set_mode((1980, 1080))
         pygame.display.set_caption("BasiqueGame")
 
+        self.death_timer = None
+        self.death_delay = 5000
+
  
         self.clock = pygame.time.Clock()
         # Générer le joeur
@@ -49,6 +52,8 @@ class Game:
 
     def handle_input(self):
         pressed = pygame.key.get_pressed()
+        if self.player.is_dead():
+            return
 
         if pressed[pygame.K_ESCAPE]:
             self.running = False
@@ -74,36 +79,27 @@ class Game:
             self.player.melee_attack()
 
     def update(self):
+        # Check attack FIRST before anything moves
+        if self.player.action == "attack" and getattr(self.player, "current_attack_rect", None):
+            attack_rect = self.player.current_attack_rect
+            for enemy in self.enemies:
+                print(f"enemy.feet={enemy.feet} | attack_rect={attack_rect} | collides={attack_rect.colliderect(enemy.feet)}")
+                if attack_rect.colliderect(enemy.feet):
+                    print("HIT via feet!")
+                    enemy.take_damage(self.player.melee_damage)
+                    if not getattr(enemy,"immune_to_knockback",False):
+                        dx = enemy.feet.centerx - self.player.feet.centerx
+                        dy = enemy.feet.centery - self.player.feet.centery
+                        distance = max((dx**2 + dy**2) ** 0.5, 1)
+                        knockback_strength = 2
+                        enemy.knockback_vector = (dx / distance * knockback_strength, dy / distance * knockback_strength)
+                        enemy.knockback_timer = enemy.knockback_duration
+                        enemy.can_attack = False
+            self.player.current_attack_rect = None
+
+        # Then update everything
         self.map_manager.update()
         self.player.update()
-
-
-        if self.player.action == "attack" and getattr(self.player, "current_attack_rect", None):
-            attack_rect = self.player.current_attack_rect
-            for enemy in self.enemies:
-                print("FOUND ENEMY!", enemy.rect)
-                print("Player attacking:", attack_rect)
-      
-        if self.player.action == "attack" and getattr(self.player, "current_attack_rect", None):
-            attack_rect = self.player.current_attack_rect
-            for enemy in self.enemies:
-                enemy.save_location()
-                if attack_rect.colliderect(enemy.rect):
-                    enemy.take_damage(self.player.melee_damage)
-                    print("enemy health:", enemy.health)
-
-                    # --- APPLY KNOCKBACK ---
-                    dx = enemy.rect.centerx - self.player.rect.centerx
-                    dy = enemy.rect.centery - self.player.rect.centery
-
-                    distance = max((dx**2 + dy**2) ** 0.5, 1)  # prevent division by zero
-                    knockback_strength = 2  # pixels per frame
-
-                    enemy.knockback_vector = (dx/distance * knockback_strength, dy/distance * knockback_strength)
-                    enemy.knockback_timer = enemy.knockback_duration
-                    enemy.can_attack = False
-
-            self.player.current_attack_rect = None
 
         if self.player.action == "attack" and self.player.clock >= 100:
             if self.player.move_vector != (0, 0):
@@ -112,14 +108,19 @@ class Game:
                 self.player.action = "idle"
 
         for enemy in self.enemies[:]:
-            if enemy.is_dead():
-                self.map_manager.get_group().remove(enemy)
+            if not enemy.alive():  # sprite.alive() returns False after kill() is called
                 self.enemies.remove(enemy)
 
-        if self.player.is_dead():
-            print("Player died!")
-            self.running = False
-        
+        if self.player.is_dead() and self.death_timer is None:
+            self.player.direction = "down"
+            self.player.action = "death"  # trigger animation
+            self.death_timer = pygame.time.get_ticks()
+
+        if self.death_timer is not None:
+            elapsed = pygame.time.get_ticks() - self.death_timer
+            if elapsed >= self.death_delay:
+                print("Player died!")
+                self.running = False
 
     def run(self):
         while self.running:
@@ -137,7 +138,7 @@ class Game:
                 if event.type == pygame.QUIT:
                     self.running = False
                 elif event.type == pygame.KEYDOWN:
-                    if event.key == pygame.K_e:
+                    if event.key == pygame.K_t:
                         self.map_manager.check_npc_collisions(self.dialog_box)
 
             self.clock.tick(40)

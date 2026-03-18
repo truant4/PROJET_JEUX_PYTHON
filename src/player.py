@@ -3,8 +3,8 @@ from animation import AnimateSprite
 from données import PLAYER_SIZE, PLAYER_SPEED, PLAYER_COLOR
 from projectile import Projectile
 class Entity(AnimateSprite):
-    def __init__(self, name, x, y,sprite_type="player"):
-        super().__init__(name,sprite_type)
+    def __init__(self, name, x, y,sprite_type="player",npc_col=0):
+        super().__init__(name,sprite_type,npc_col)
 
         # Position and old position
         self.position = [x, y]
@@ -120,40 +120,60 @@ class Player(Entity):
         return self.health <= 0
 
     def melee_attack(self):
-        """Start a melee attack in the direction the player is facing."""
         now = pygame.time.get_ticks()
-        if now - self.last_melee_time < self.melee_cooldown or self.direction == (0,0):
+        if now - self.last_melee_time < self.melee_cooldown or self.direction == (0, 0):
             return None
 
         self.last_melee_time = now
-        self.action = "attack"  # trigger attack animation
+        self.action = "attack"
         self.animation_index = 0
 
-        # Determine attack target rectangle based on facing
-        attack_range = 40  # distance in pixels for melee
-        px, py = self.rect.center
-        dx, dy = self.move_vector
+        attack_size = 12   # small square hitbox
+        offset = 0       # how far in front of the player
 
-        # Create a small rect in the facing direction
-        attack_rect = pygame.Rect(px, py, self.rect.width, self.rect.height)
+        cx, cy = self.rect.center
 
-        if dx > 0:  # right
-            attack_rect = pygame.Rect(self.rect.right, self.rect.top, attack_range, self.rect.height)
-        elif dx < 0:  # left
-            attack_rect = pygame.Rect(self.rect.left - attack_range, self.rect.top, attack_range, self.rect.height)
-        elif dy > 0:  # down
-            attack_rect = pygame.Rect(self.rect.left, self.rect.bottom, self.rect.width, attack_range)
-        elif dy < 0:  # up
-            attack_rect = pygame.Rect(self.rect.left, self.rect.top - attack_range, self.rect.width, attack_range)
+        if self.direction == "right":
+            attack_rect = pygame.Rect(
+                self.feet.right,
+                self.feet.y,
+                4,    # only 4px wide
+                24    # match feet height
+            )
+        elif self.direction == "left":
+            attack_rect = pygame.Rect(
+                self.feet.left - 4,  # only 4px to the left
+                self.feet.y,
+                4,
+                24
+            )
+        elif self.direction == "down":
+            attack_rect = pygame.Rect(
+                cx - attack_size // 2,
+                self.feet.bottom,
+                attack_size,
+                24    # only 4px below feet
+            )
+        elif self.direction == "up":
+            attack_rect = pygame.Rect(
+                cx - attack_size // 2,
+                self.feet.top - 4,
+                attack_size,
+                6
+            )
         else:
-            attack_rect = pygame.Rect(self.rect.topleft, (self.rect.width, self.rect.height))
+            attack_rect = pygame.Rect(cx, cy, attack_size, attack_size)
 
-        # Save rect to apply damage in Game.update
+        print(f"[ATTACK] dir={self.direction} | player_rect={self.rect} | attack_rect={attack_rect} | size={attack_rect.width}x{attack_rect.height} | offset={offset}")
+
         self.current_attack_rect = attack_rect
         return attack_rect
 
     def update(self):
-                # Handle knockback
+        if self.action == "death":
+            super().update()
+            return
+        # Handle knockback
         if self.knockback_timer > 0:
             self.position[0] += self.knockback_vector[0]
             self.position[1] += self.knockback_vector[1]
@@ -185,8 +205,8 @@ class Player(Entity):
         super().update()
 
 class NPC(Entity):
-    def __init__(self, name, nb_points, dialog,sprite_type="player"):
-        super().__init__(name, 0, 0,sprite_type)
+    def __init__(self, name, nb_points, dialog,sprite_type="npc",npc_col=0):
+        super().__init__(name, 0, 0,sprite_type,npc_col)
         self.nb_points = nb_points
         self.dialog = dialog
         self.points = []
