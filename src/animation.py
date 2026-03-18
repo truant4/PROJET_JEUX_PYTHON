@@ -244,6 +244,13 @@ class AnimateSprite(pygame.sprite.Sprite):
     def load_boss_style(self):
         self.frame_size= 80
         self.frames_per_anim= 8
+        self.animation_priority = {
+            "idle": 0,
+            "run": 0,
+            "attack": 2,
+            "hurt": 1,
+            "death": 3
+        }
         FRAME_W = 80
         FRAME_H = 80
 

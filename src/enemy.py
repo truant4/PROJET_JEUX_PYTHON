@@ -280,7 +280,7 @@ class Boss(Enemy):
             player,
             nb_points=nb_points,
             enemy_type="boss",  # déclenche boss_animation dans AnimateSprite
-            health=500,
+            health=300,
             damage=40,
             speed=0.4,
             animation_speed=1,
@@ -292,3 +292,37 @@ class Boss(Enemy):
         self.immune_to_knockback = True
         self.immune_to_interupt = True
         self.has_hurt_recovery = True
+
+
+    def take_damage(self, amount):
+        if self.action == "death":
+            return
+
+        # Boss : l'attaque ne peut pas être interrompue par hurt
+        if getattr(self, "immune_to_interupt", False) and self.attacking:
+            self.health -= amount
+            if self.health <= 0:
+                self.health = 0
+                self.action = "death"
+                self.animation_index = 0
+            return  # ← on encaisse les dégâts mais on ne change pas l'action
+
+        if self.action == "hurt" and getattr(self, "has_hurt_recovery", False):
+            return
+
+        self.health -= amount
+        if self.health <= 0:
+            self.health = 0
+            self.action = "death"
+            self.animation_index = 0
+            return
+
+        if self.attacking and not getattr(self, "immune_to_interupt", False):
+            self.attacking = False
+            self.attacking_timer = 0
+            self.attack_timer = 0
+
+        self.action = "hurt"
+        self.animation_index = 0
+        self.clock = 0
+    
