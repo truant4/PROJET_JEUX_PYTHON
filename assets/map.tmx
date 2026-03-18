@@ -2525,7 +2525,7 @@
  </layer>
  <objectgroup id="16" name="player"/>
  <objectgroup id="15" name="collisions" class="collision">
-  <object id="23" name="player" x="416.667" y="690.33" width="34" height="29.6667"/>
+  <object id="23" name="player" x="349.667" y="136.33" width="34" height="29.6667"/>
   <object id="37" type="collision" x="0.5" y="1458.33" width="325.75" height="125.667"/>
   <object id="43" type="collision" x="986.5" y="1199.75" width="58.5" height="25.5"/>
   <object id="397" type="collision" x="943.875" y="1214.63" width="16.375" height="17.375"/>
@@ -2861,8 +2861,17 @@
   <object id="446" name="boss_path2" x="368" y="288.333" width="16.6667" height="14.6667"/>
  </objectgroup>
  <objectgroup id="32" name="portals">
-  <object id="440" name="enter_housse" type="enter_housse" x="1340.67" y="1094" width="16" height="26.6667"/>
-  <object id="441" name="enter_exit_housse" type="enter_exit_housse" x="1351.33" y="1136">
+  <object id="440" name="enter_house1" x="1340.67" y="1094" width="16" height="26.6667"/>
+  <object id="441" name="enter_exit_house1" x="1351.33" y="1136">
+   <point/>
+  </object>
+  <object id="442" name="enter_house2" x="1020.06" y="1223.5" width="15.8125" height="8.625"/>
+  <object id="443" name="enter_exit_house2" x="1021.63" y="1255.94">
+   <point/>
+  </object>
+  <object id="444" name="enter_dungeon" x="353.636" y="40.7273" width="30" height="17.6364"/>
+  <object id="445" name="enter_house3" x="1227.27" y="1369.09" width="16.9091" height="6.90909"/>
+  <object id="446" name="enter_exit_house3" x="1232" y="1397.27">
    <point/>
   </object>
  </objectgroup>

@@ -1,0 +1,54 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<map version="1.10" tiledversion="1.11.2" orientation="orthogonal" renderorder="right-down" width="10" height="10" tilewidth="16" tileheight="16" infinite="0" nextlayerid="5" nextobjectid="16">
+ <tileset firstgid="1" source="tiles/walls_floor.tsx"/>
+ <tileset firstgid="177" source="tiles/Interior.tsx"/>
+ <layer id="1" name="Calque de Tuiles 1" width="10" height="10">
+  <data encoding="csv">
+104,105,106,104,105,106,104,105,106,106,
+104,105,106,104,105,104,105,106,106,117,
+104,104,104,105,106,104,105,106,117,117,
+104,104,104,105,106,104,105,106,116,117,
+115,104,104,105,106,104,105,106,116,117,
+104,105,104,105,106,104,105,106,116,117,
+104,105,104,105,106,104,105,106,104,105,
+104,104,115,104,104,104,105,104,104,105,
+104,115,115,115,115,104,104,115,104,105,
+115,115,116,117,117,115,115,104,105,106
+</data>
+ </layer>
+ <layer id="2" name="Calque de Tuiles 2" width="10" height="10">
+  <data encoding="csv">
+195,196,237,238,225,226,197,198,195,196,
+209,210,251,252,239,240,211,212,209,210,
+223,224,0,0,253,254,0,0,223,224,
+0,0,410,411,411,411,411,412,318,319,
+197,198,424,425,425,425,425,426,332,333,
+211,212,438,439,425,425,439,440,346,347,
+0,0,452,453,425,425,453,454,318,319,
+0,0,466,467,467,467,467,468,332,333,
+0,0,0,0,0,0,0,0,346,347,
+0,0,0,0,192,193,194,0,0,0
+</data>
+ </layer>
+ <objectgroup id="3" name="portals">
+  <object id="1" name="spawn_room1_house1" x="72" y="76.75">
+   <point/>
+  </object>
+  <object id="2" name="exit_room1_house1" x="66.75" y="153" width="40.75" height="7"/>
+ </objectgroup>
+ <objectgroup id="4" name="collisions">
+  <object id="3" type="collision" x="0.181818" y="-31.0909" width="167.636" height="31.0909"/>
+  <object id="4" type="collision" x="160" y="-31.0909" width="7.81818" height="206.727"/>
+  <object id="5" type="collision" x="-0.727273" y="158.909" width="160.727" height="17.6364"/>
+  <object id="6" type="collision" x="-15.2727" y="-4.54545" width="15.2727" height="165.455"/>
+  <object id="7" type="collision" x="6.90909" y="67.2727" width="17.4545" height="23.6364"/>
+  <object id="8" type="collision" x="5.45455" y="-0.181818" width="18.5455" height="37.0909"/>
+  <object id="9" type="collision" x="38.7273" y="-0.545455" width="23.0909" height="23.6364"/>
+  <object id="10" type="collision" x="68.7273" y="9.09091" width="24.7273" height="32.7273"/>
+  <object id="11" type="collision" x="103.455" y="2.18182" width="16.7273" height="24.3636"/>
+  <object id="12" type="collision" x="132.909" y="-0.363636" width="18.9091" height="36.5455"/>
+  <object id="13" type="collision" x="140.182" y="53.0909" width="14.7273" height="33.4545"/>
+  <object id="14" type="collision" x="139.636" y="100.909" width="15.8182" height="33.8182"/>
+  <object id="15" x="210.545" y="104.364"/>
+ </objectgroup>
+</map>
