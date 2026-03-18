@@ -8,3 +8,9 @@ class HealingItem(pygame.sprite.Sprite):
         self.image = pygame.transform.scale(self.image, (16, 16))
         self.rect = self.image.get_rect()
         self.rect.topleft = (x, y)
+
+class HeartReceptacle(HealingItem):  
+    def __init__(self, x, y, amount = None):
+        super().__init__(x, y, amount = None)
+        self.image = pygame.image.load("assets/potion.png").convert_alpha()
+        self.image = pygame.transform.scale(self.image, (16, 16))

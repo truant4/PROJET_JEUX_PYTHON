@@ -3,7 +3,7 @@ import pygame, pytmx, pyscroll
 import dialog
 from player import *
 from enemy import *
-from items import HealingItem
+from items import HealingItem, HeartReceptacle
 
 @dataclass
 class Portals():
@@ -22,6 +22,7 @@ class Map:
     npcs: list[NPC]
     enemies: list
     items: list
+    hearts : list
     portals : list[Portals]
 
 class MapManager():
@@ -110,7 +111,14 @@ class MapManager():
                 self.player.health = min(self.player.health + item.amount, self.player.max_health)
                 item.kill()
                 self.get_map().items.remove(item)
-            
+
+        for heart in self.get_map().hearts:
+            if self.player.rect.colliderect(heart.rect):
+                self.player.max_health += 20
+                self.player.health = self.player.max_health
+                heart.kill()
+                self.get_map().hearts.remove(heart)
+
 
     def teleportation_player(self,name):
         point = self.get_object(name)
@@ -167,18 +175,21 @@ class MapManager():
             enemy.walls = walls_enemy
 
         items = []
+        hearts = []
         for obj in tmx_data.objects:
             if obj.type == "healing_item":
                 amount = int(obj.properties.get("amount", 10))
                 item = HealingItem(obj.x, obj.y, amount)
                 items.append(item)
                 group.add(item)
+                
+            elif obj.type == "heart":
+                heart = HeartReceptacle(obj.x, obj.y)
+                hearts.append(heart)
+                group.add(heart)
 
     
-        self.maps[name] = Map(name, walls, group, tmx_data, npcs,enemies, items, portals)
-
-
-        self.maps[name] = Map(name, walls, group, tmx_data, npcs,enemies,items,portals)
+        self.maps[name] = Map(name, walls, group, tmx_data, npcs,enemies, items, hearts, portals)
 
 
     def get_map(self): return self.maps[self.current_map]
