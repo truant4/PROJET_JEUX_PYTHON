@@ -49,23 +49,23 @@ class MapManager():
                 Portals(from_world="map", origin_point="enter_dungeon", target_world="dungeon", teleport_point="spawn_dungeon"),
                 Portals(from_world="map", origin_point="enter_house3", target_world="house3", teleport_point="spawn_house3")
         ])
-        self.register_map("house1", portals=[
+          self.register_map("house1", portals=[
             Portals(from_world="house1", origin_point="enter_room1", target_world="house1_room1", teleport_point="spawn_room1_house1" ),
             Portals(from_world="house1", origin_point="exit_house1", target_world="map", teleport_point="enter_exit_house1" )
         ])
-        self.register_map("house1_room1", portals=[
+          self.register_map("house1_room1", portals=[
             Portals(from_world="house1_room1", origin_point="exit_room1_house1", target_world="house1", teleport_point="enter_exit_room1_house1" )
         ])
-        self.register_map("house2", portals=[
+          self.register_map("house2", portals=[
             Portals(from_world="house2", origin_point="exit_house2", target_world="map", teleport_point="enter_exit_house2" )
         ])
-        self.register_map("house3", portals=[
+          self.register_map("house3", portals=[
             Portals(from_world="house3", origin_point="exit_house3", target_world="map", teleport_point="enter_exit_house3" )
         ])
-        self.register_map("dungeon")
+          self.register_map("dungeon")
 
-        self.teleportation_player("player")
-        self.teleport_npcs()
+          self.teleportation_player("player")
+          self.teleport_npcs()
         # self.teleport_enem
 
     def check_npc_collisions(self, dialog_box):
