@@ -247,7 +247,7 @@ class Slime(Enemy):
             name, player,
             nb_points=nb_points,
             enemy_type="slime",
-            health=100,
+            health=60,
             damage=10,
             speed=0.5,           # movement speed
             animation_speed=1.5,   # animation speed — independent
@@ -263,7 +263,7 @@ class Goblin(Enemy):
             name, player,
             nb_points=nb_points,
             enemy_type="goblin",
-            health=100,
+            health=80,
             damage=20,
             speed=0.5,           # movement speed
             animation_speed=1.5,   # animation speed — independent
