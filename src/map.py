@@ -28,46 +28,70 @@ class Map:
 class MapManager():
      
     def __init__(self, screen, player,clock):
-          self.maps = dict()
-          self.screen = screen
-          self.player = player
-          self.clock = clock
-          self.current_map = "map"
-          self.enemies = []
-          self.register_map("map", npcs=[
-            NPC("paul", nb_points = 4, dialog=["Salut", "bien", "au revoir"],npc_col=0),
-            NPC("robin", nb_points= 2, dialog=["coucou", "cool", "au revoir"],npc_col=1),
-            ],
-            enemies=[
-            Slime("slime1",self.player,nb_points=2),
-            Slime("slime2",self.player,nb_points=2),
-            Goblin("goblin1",self.player,nb_points=2),
-            Boss("boss", self.player, nb_points=1)
-        ],
-            portals=[
-                Portals(from_world="map", origin_point="enter_house1", target_world="house1", teleport_point="spawn_house1"),
-                Portals(from_world="map", origin_point="enter_house2", target_world="house2", teleport_point="spawn_house2"),
-                Portals(from_world="map", origin_point="enter_dungeon", target_world="dungeon", teleport_point="spawn_dungeon"),
-                Portals(from_world="map", origin_point="enter_house3", target_world="house3", teleport_point="spawn_house3")
-        ])
-          self.register_map("house1", portals=[
-            Portals(from_world="house1", origin_point="enter_room1", target_world="house1_room1", teleport_point="spawn_room1_house1" ),
-            Portals(from_world="house1", origin_point="exit_house1", target_world="map", teleport_point="enter_exit_house1" )
-        ])
-          self.register_map("house1_room1", portals=[
-            Portals(from_world="house1_room1", origin_point="exit_room1_house1", target_world="house1", teleport_point="enter_exit_room1_house1" )
-        ])
-          self.register_map("house2", portals=[
-            Portals(from_world="house2", origin_point="exit_house2", target_world="map", teleport_point="enter_exit_house2" )
-        ])
-          self.register_map("house3", portals=[
-            Portals(from_world="house3", origin_point="exit_house3", target_world="map", teleport_point="enter_exit_house3" )
-        ])
-          self.register_map("dungeon")
+        self.maps = dict()
+        self.screen = screen
+        self.player = player
+        self.clock = clock
+        self.current_map = "map"
+        self.enemies = []
 
-          self.teleportation_player("player")
-          self.teleport_npcs()
-        # self.teleport_enem
+
+        goblins = []
+        for i in range(1, 12):
+            goblins.append(Goblin(f"goblin{i}", self.player, nb_points=2))
+
+        slimes = []
+        for i in range(1, 21):
+            slimes.append(Slime(f"slime{i}", self.player, nb_points=2))
+
+
+
+        self.register_map("map", npcs=[
+        NPC("geaq", nb_points = 2, dialog=["Bienvenue au village !", "Moi c'est Geaq enchanté !", "N'hésite pas à rencontrer les personnes du village.", "Va voir la pauvre fille pour plus d'informations"],npc_col=3),
+        NPC("rush_dark", nb_points = 2, dialog=["Salut", "Moi c'est Rush Dark !", " J-j-je suppose que t-t-t tu viens po-po-po-pour l'arbre ?", "Il est en-en-en m-m-mauvais état", "Ce-ce-cela est à cause du-du mo-mo-mo-monstre !", "Il est, il est au fond de la fo-fo-forêt.", "Po-po-pourrais tu nous en dé-dé-débarrasser ?"],npc_col=2),
+        ],
+
+        enemies=[
+            *slimes,
+            *goblins,      
+        ],
+
+        portals=[
+            Portals(from_world="map", origin_point="enter_house1", target_world="house1", teleport_point="spawn_house1"),
+            Portals(from_world="map", origin_point="enter_house2", target_world="house2", teleport_point="spawn_house2"),
+            Portals(from_world="map", origin_point="enter_dungeon", target_world="dungeon", teleport_point="spawn_dungeon"),
+            Portals(from_world="map", origin_point="enter_house3", target_world="house3", teleport_point="spawn_house3")
+    ])
+        self.register_map("house1", portals=[
+        Portals(from_world="house1", origin_point="enter_room1", target_world="house1_room1", teleport_point="spawn_room1_house1" ),
+        Portals(from_world="house1", origin_point="exit_house1", target_world="map", teleport_point="enter_exit_house1" )
+    ])
+        self.register_map("house1_room1", portals=[
+        Portals(from_world="house1_room1", origin_point="exit_room1_house1", target_world="house1", teleport_point="enter_exit_room1_house1" )
+    ],
+
+    )
+        self.register_map("house2", portals=[
+        Portals(from_world="house2", origin_point="exit_house2", target_world="map", teleport_point="enter_exit_house2" )
+    ],
+        npcs=[
+            NPC("maelys", nb_points = 2, dialog=["On est un peu à l'étroit ici, 15m carré c'est pas bien grand", "Excuse-moi je ne t'avais pas vu","Nous avons un problème en ce moment", "Va voir le grand arbre dans le village"], npc_col=0),
+            ]
+    )
+        self.register_map("house3", portals=[
+        Portals(from_world="house3", origin_point="exit_house3", target_world="map", teleport_point="enter_exit_house3" )
+    ],
+        npcs=[
+            NPC("arthur", nb_points= 2, dialog=["Bonjour jeune voyageur, moi c'est arthur","Je manque de data ces derniers jours","Je ne suis qu'à 60 ou 40 pourcent de mes capacités", "Les monstres m'empêchent de travailler", "Saviez vous que les personnes me considèrent comme leurs meilleures rencontres ?"],npc_col=1),
+            ]
+    )
+        self.register_map("dungeon",enemies=[
+        Boss("boss", self.player, nb_points=1)
+    ],)
+
+        self.teleportation_player("player")
+        self.teleport_npcs()
+    # self.teleport_enem
 
     def check_npc_collisions(self, dialog_box):
         for sprite in self.get_group().sprites():

@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<map version="1.10" tiledversion="1.11.2" orientation="orthogonal" renderorder="right-down" width="33" height="33" tilewidth="16" tileheight="16" infinite="0" nextlayerid="5" nextobjectid="15">
+<map version="1.10" tiledversion="1.11.2" orientation="orthogonal" renderorder="right-down" width="33" height="33" tilewidth="16" tileheight="16" infinite="0" nextlayerid="7" nextobjectid="26">
  <tileset firstgid="1" source="tiles/Dungeon_Tiles.tsx"/>
  <layer id="1" name="Calque de Tuiles 1" width="33" height="33">
   <data encoding="csv">
@@ -94,5 +94,16 @@
   <object id="12" type="collision" x="512.333" y="40.3333" width="9" height="482.333"/>
   <object id="13" type="collision" x="11.3333" y="305" width="229" height="207.667"/>
   <object id="14" type="collision" x="286.333" y="305" width="228.333" height="207.667"/>
+ </objectgroup>
+ <objectgroup id="5" name="NPCPaths">
+  <object id="15" name="boss_path1" x="256.261" y="61.5947" width="15.5" height="16.25"/>
+ </objectgroup>
+ <objectgroup id="6" name="items">
+  <object id="20" name="healing_item" type="healing_item" x="494.114" y="287.159" width="15.7727" height="15.1818"/>
+  <object id="21" name="healing_item" type="healing_item" x="493.614" y="174.659" width="15.7727" height="15.1818"/>
+  <object id="22" name="healing_item" type="healing_item" x="492.364" y="57.9091" width="15.7727" height="15.1818"/>
+  <object id="23" name="healing_item" type="healing_item" x="19.3637" y="58.4091" width="15.7727" height="15.1818"/>
+  <object id="24" name="healing_item" type="healing_item" x="16.8637" y="161.659" width="15.7727" height="15.1818"/>
+  <object id="25" name="healing_item" type="healing_item" x="16.3637" y="286.409" width="15.7727" height="15.1818"/>
  </objectgroup>
 </map>

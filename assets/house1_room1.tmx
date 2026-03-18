@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<map version="1.10" tiledversion="1.11.2" orientation="orthogonal" renderorder="right-down" width="10" height="10" tilewidth="16" tileheight="16" infinite="0" nextlayerid="5" nextobjectid="16">
+<map version="1.10" tiledversion="1.11.2" orientation="orthogonal" renderorder="right-down" width="10" height="10" tilewidth="16" tileheight="16" infinite="0" nextlayerid="6" nextobjectid="17">
  <tileset firstgid="1" source="tiles/walls_floor.tsx"/>
  <tileset firstgid="177" source="tiles/Interior.tsx"/>
  <layer id="1" name="Calque de Tuiles 1" width="10" height="10">
@@ -31,10 +31,13 @@
 </data>
  </layer>
  <objectgroup id="3" name="portals">
-  <object id="1" name="spawn_room1_house1" x="72" y="76.75">
+  <object id="1" name="spawn_room1_house1" x="44.154" y="111.322">
    <point/>
   </object>
   <object id="2" name="exit_room1_house1" x="66.75" y="153" width="40.75" height="7"/>
+ </objectgroup>
+ <objectgroup id="5" name="items">
+  <object id="16" name="heart1" type="heart" x="71.5648" y="63.1619" width="15.875" height="16"/>
  </objectgroup>
  <objectgroup id="4" name="collisions">
   <object id="3" type="collision" x="0.181818" y="-31.0909" width="167.636" height="31.0909"/>

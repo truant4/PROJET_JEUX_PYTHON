@@ -87,7 +87,7 @@ class Player(Entity):
         self.max_health = 100
 
         # Melee
-        self.melee_damage = 30
+        self.melee_damage = 20
         self.melee_cooldown = 500  # milliseconds
         self.melee_duration = 100
         self.last_melee_time = 0
