@@ -189,14 +189,14 @@ class AnimateSprite(pygame.sprite.Sprite):
 
         self.direction = direction
         frames = self.images[self.action][self.direction]
-
-        self.clock += self.speed * 8
+        anim_speed = getattr(self, "animation_speed", self.speed)  # ← use animation_speed if set
+        self.clock += anim_speed * 8
         if self.clock >= 100:
             self.animation_index += 1
             self.clock = 0
 
             if self.animation_index >= len(frames):
-                if self.action in ("attack", "death"):  # ← add death here
+                if self.action in ("attack", "death","hurt"):  # ← add death here
                     self.animation_index = len(frames) - 1
                 else:
                     self.animation_index = 0
@@ -215,32 +215,42 @@ class AnimateSprite(pygame.sprite.Sprite):
     def load_player_style(self):
         self.images = {
             "idle": {
-                "down": self.get_images(0),
+                "down":  self.get_images(0),
                 "right": self.get_images(32),
-                "up": self.get_images(64)
+                "up":    self.get_images(64)
             },
             "run": {
-                "down": self.get_images(96),
+                "down":  self.get_images(96),
                 "right": self.get_images(128),
-                "up": self.get_images(160)
+                "up":    self.get_images(160)
             },
             "attack": {
-                "down": self.get_images(192),
+                "down":  self.get_images(192),
                 "right": self.get_images(224),
-                "up": self.get_images(256)
+                "up":    self.get_images(256)
+            },
+            "death": {
+                "down":  self.get_images(288),
+                "right": self.get_images(320),
+                "up":    self.get_images(352)
+                }
             }
-        }
-
-        for action in ["idle", "run", "attack"]:
+        for action in ["idle", "run", "attack", "death"]:
             self.images[action]["left"] = [
                 pygame.transform.flip(img, True, False)
                 for img in self.images[action]["right"]
             ]
 
-
     def load_boss_style(self):
         self.frame_size= 80
         self.frames_per_anim= 8
+        self.animation_priority = {
+            "idle": 0,
+            "run": 0,
+            "attack": 2,
+            "hurt": 1,
+            "death": 3
+        }
         FRAME_W = 80
         FRAME_H = 80
 
@@ -262,12 +272,6 @@ class AnimateSprite(pygame.sprite.Sprite):
                 "up": self.get_images(1 * FRAME_H)
 
             },  
-            "hurt": {
-                "down": self.get_images(2 * FRAME_H),
-                "right": self.get_images(2 * FRAME_H),
-                "up": self.get_images(2 * FRAME_H)
-
-            },
             "death": {
                 "down": self.get_images(3 * FRAME_H),
                 "right": self.get_images(3 * FRAME_H),
@@ -276,7 +280,14 @@ class AnimateSprite(pygame.sprite.Sprite):
             }
 
         }
-
+            # Switch frame count BEFORE slicing the hurt row
+        self.frames_per_anim = 2
+        self.images["hurt"] = {
+                "down":  self.get_images(2 * FRAME_H),
+                "right": self.get_images(2 * FRAME_H),
+                "up":    self.get_images(2 * FRAME_H),
+            }
+        self.frames_per_anim = 8  # restore for anything else
         for action in ["idle", "run", "attack","hurt","death"]:
             if self.action == "hurt":
                 self.frames_per_anim =2
