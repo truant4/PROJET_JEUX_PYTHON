@@ -24,7 +24,7 @@ class Game:
         pygame.display.set_caption("BasiqueGame")
 
         self.death_timer = None
-        self.death_delay = 2000
+        self.death_delay = 5000
 
  
         self.clock = pygame.time.Clock()
@@ -52,6 +52,8 @@ class Game:
 
     def handle_input(self):
         pressed = pygame.key.get_pressed()
+        if self.player.is_dead():
+            return
 
         if pressed[pygame.K_ESCAPE]:
             self.running = False
@@ -110,6 +112,7 @@ class Game:
                 self.enemies.remove(enemy)
 
         if self.player.is_dead() and self.death_timer is None:
+            self.player.direction = "down"
             self.player.action = "death"  # trigger animation
             self.death_timer = pygame.time.get_ticks()
 

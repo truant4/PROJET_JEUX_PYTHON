@@ -47,24 +47,26 @@ class Enemy(NPC):
     def take_damage(self, amount):
         if self.action == "death":
             return
+        # Don't interrupt an ongoing hurt animation
+        if self.action == "hurt" and getattr(self, "has_hurt_recovery", False):
+            return
 
+        self.health -= amount  # ← also move this BEFORE the <= 0 check
 
         if self.health <= 0:
             self.health = 0
             self.action = "death"
             self.animation_index = 0
-        else:
-            if self.attacking and not getattr(self, "immune_to_interupt", False):
-                self.attacking = False
-                self.attacking_timer = 0
-                self.attack_timer = 0
-                self.animation_index = 0
-                self.action = "hurt"  # ← only hurt if attack was interrupted
-                self.health -= amount
-            elif not self.attacking:
-                self.action = "hurt"  # ← hurt normally when not attacking
-                self.health -= amount
+            return
 
+        if self.attacking and not getattr(self, "immune_to_interupt", False):
+            self.attacking = False
+            self.attacking_timer = 0
+            self.attack_timer = 0
+
+        self.action = "hurt"
+        self.animation_index = 0
+        self.clock = 0  # ← reset clock so animation starts clean
 
     def is_dead(self):
         return self.health <= 0
@@ -83,12 +85,13 @@ class Enemy(NPC):
             self.rect.topleft = tuple(self.position)
             self.feet.midbottom = self.rect.midbottom
             return
-        if self.action == "hurt" and getattr(self,"has_hurt_recovery",False):
+        if self.action == "hurt" and getattr(self, "has_hurt_recovery", False):
             frames = self.images["hurt"][self.direction]
             self.change_animation("hurt", self.direction)
             if self.animation_index >= len(frames) - 1:
                 self.action = "idle"
                 self.animation_index = 0
+                self.clock = 0  # ← add this
             self.rect.topleft = tuple(self.position)
             self.feet.midbottom = self.rect.midbottom
             return
@@ -280,12 +283,12 @@ class Boss(Enemy):
             health=500,
             damage=40,
             speed=0.4,
-            animation_speed=1.5,
+            animation_speed=1,
             detection_range=200,
             attack_range=40,
-            attack_cooldown=20000
+            attack_cooldown=1500
         )
-        self.attack_windup = 3000
+        self.attack_windup = 1300
         self.immune_to_knockback = True
         self.immune_to_interupt = True
         self.has_hurt_recovery = True

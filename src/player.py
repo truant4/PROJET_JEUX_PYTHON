@@ -170,7 +170,10 @@ class Player(Entity):
         return attack_rect
 
     def update(self):
-                # Handle knockback
+        if self.action == "death":
+            super().update()
+            return
+        # Handle knockback
         if self.knockback_timer > 0:
             self.position[0] += self.knockback_vector[0]
             self.position[1] += self.knockback_vector[1]
