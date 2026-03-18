@@ -1,6 +1,6 @@
 from os import walk
 import pygame
-
+import enemy
 class AnimateSprite(pygame.sprite.Sprite):
     def __init__(self, name, sprite_type="player", npc_col = 0):
         super().__init__()
@@ -242,8 +242,10 @@ class AnimateSprite(pygame.sprite.Sprite):
             ]
 
     def load_boss_style(self):
-        self.frame_size= 80
-        self.frames_per_anim= 8
+        self.frame_size = 80
+        self.frames_per_anim = 8
+        self.scale = 1.5  # ← change this to make boss bigger
+
         self.animation_priority = {
             "idle": 0,
             "run": 0,
@@ -251,51 +253,36 @@ class AnimateSprite(pygame.sprite.Sprite):
             "hurt": 1,
             "death": 3
         }
+
         FRAME_W = 80
         FRAME_H = 80
 
+        def scale_frames(frames):
+            return [
+                pygame.transform.scale(f, (FRAME_W * self.scale, FRAME_H * self.scale))
+                for f in frames
+            ]
+
         self.images = {
-            "idle": {
-                "down": self.get_images(0 * FRAME_H),
-                "right": self.get_images(0 * FRAME_H),
-                "up": self.get_images(0 * FRAME_H)
-                
-            },
-            "run": {
-                "down": self.get_images(0 * FRAME_H),
-                "right": self.get_images(0 * FRAME_H),
-                "up": self.get_images(0 * FRAME_H)
-            },
-            "attack": {
-                "down": self.get_images(1 * FRAME_H),
-                "right": self.get_images(1 * FRAME_H),
-                "up": self.get_images(1 * FRAME_H)
-
-            },  
-            "death": {
-                "down": self.get_images(3 * FRAME_H),
-                "right": self.get_images(3 * FRAME_H),
-                "up": self.get_images(3 * FRAME_H)
-
-            }
-
+            "idle":   {"down": scale_frames(self.get_images(0 * FRAME_H)), "right": scale_frames(self.get_images(0 * FRAME_H)), "up": scale_frames(self.get_images(0 * FRAME_H))},
+            "run":    {"down": scale_frames(self.get_images(0 * FRAME_H)), "right": scale_frames(self.get_images(0 * FRAME_H)), "up": scale_frames(self.get_images(0 * FRAME_H))},
+            "attack": {"down": scale_frames(self.get_images(1 * FRAME_H)), "right": scale_frames(self.get_images(1 * FRAME_H)), "up": scale_frames(self.get_images(1 * FRAME_H))},
+            "death":  {"down": scale_frames(self.get_images(3 * FRAME_H)), "right": scale_frames(self.get_images(3 * FRAME_H)), "up": scale_frames(self.get_images(3 * FRAME_H))},
         }
-            # Switch frame count BEFORE slicing the hurt row
+
         self.frames_per_anim = 2
         self.images["hurt"] = {
-                "down":  self.get_images(2 * FRAME_H),
-                "right": self.get_images(2 * FRAME_H),
-                "up":    self.get_images(2 * FRAME_H),
-            }
-        self.frames_per_anim = 8  # restore for anything else
-        for action in ["idle", "run", "attack","hurt","death"]:
-            if self.action == "hurt":
-                self.frames_per_anim =2
+            "down":  scale_frames(self.get_images(2 * FRAME_H)),
+            "right": scale_frames(self.get_images(2 * FRAME_H)),
+            "up":    scale_frames(self.get_images(2 * FRAME_H)),
+        }
+        self.frames_per_anim = 8
+
+        for action in ["idle", "run", "attack", "hurt", "death"]:
             self.images[action]["left"] = [
                 pygame.transform.flip(img, True, False)
                 for img in self.images[action]["right"]
-            ]
-        
+            ]        
 
 class HeartDisplay:
     def __init__(self, player, heart_path="assets/sprites/hearts/heartDisplay.png", heart_value=20):
@@ -334,3 +321,37 @@ class HeartDisplay:
         return image
 
 
+class BossBar:
+    def __init__(self, boss, sheet_path="assets/sprites/Boss/HUD_Boss.png", scale=6):  # scale up
+        self.boss = boss
+        sheet = pygame.image.load(sheet_path).convert_alpha()
+        frame_w = sheet.get_width()
+
+        self.empty_image = pygame.transform.scale(
+            sheet.subsurface((0, 8, frame_w, 16)),
+            (frame_w * scale, 16 * scale)
+        )
+        self.fill_image = pygame.transform.scale(
+            sheet.subsurface((0, 24, frame_w, 8)),
+            (frame_w * scale, 8 * scale)
+        )
+
+        self.scale = scale
+        self.frame_w = frame_w * scale
+        self.frame_h = 16 * scale
+        self.fill_w  = 78 * scale
+        self.fill_h  = 8  * scale
+
+    def draw(self, screen):
+        if not self.boss.awake:
+            return
+
+        screen_w = screen.get_width()
+        x = (screen_w - self.frame_w) // 2
+        y = 20  # ← top of screen instead of bottom
+
+        fill_ratio = self.boss.health / self.boss.max_health
+        fill_width = int(self.fill_w * fill_ratio)
+        fill_y = y + self.frame_h - self.fill_h
+        screen.blit(self.fill_image, (x, fill_y), (0, 0, fill_width, self.fill_h))
+        screen.blit(self.empty_image, (x, y))

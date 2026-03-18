@@ -47,11 +47,14 @@ class Enemy(NPC):
     def take_damage(self, amount):
         if self.action == "death":
             return
-        # Don't interrupt an ongoing hurt animation
         if self.action == "hurt" and getattr(self, "has_hurt_recovery", False):
             return
 
-        self.health -= amount  # ← also move this BEFORE the <= 0 check
+        self.action = "hurt"
+        self.animation_index = 0
+        self.clock = 0
+
+        self.health -= amount  # ← only runs when hurt actually triggers
 
         if self.health <= 0:
             self.health = 0
@@ -63,10 +66,6 @@ class Enemy(NPC):
             self.attacking = False
             self.attacking_timer = 0
             self.attack_timer = 0
-
-        self.action = "hurt"
-        self.animation_index = 0
-        self.clock = 0  # ← reset clock so animation starts clean
 
     def is_dead(self):
         return self.health <= 0
@@ -239,7 +238,8 @@ class Enemy(NPC):
 
         if dx + dy <= self.attack_range:
             self.player.take_dmg(self.damage, self.rect.center)
-            self.last_attack_time = pygame.time.get_ticks()
+
+        self.last_attack_time = pygame.time.get_ticks()
 
 class Slime(Enemy):
     def __init__(self, name, player, nb_points=0):
@@ -281,12 +281,12 @@ class Boss(Enemy):
             nb_points=nb_points,
             enemy_type="boss",  # déclenche boss_animation dans AnimateSprite
             health=300,
-            damage=40,
+            damage=50,
             speed=0.4,
             animation_speed=1,
             detection_range=200,
             attack_range=40,
-            attack_cooldown=1500
+            attack_cooldown=800
         )
         self.attack_windup = 1300
         self.immune_to_knockback = True

@@ -96,7 +96,12 @@ class MapManager():
     def check_npc_collisions(self, dialog_box):
         for sprite in self.get_group().sprites():
             if type(sprite) is NPC and sprite.feet.colliderect(self.player.rect):
-                dialog_box.execute(sprite.dialog)
+                dialog_box.execute(
+                    dialog=sprite.dialog,
+                    npc_index=sprite.npc_col,
+                    expressions=sprite.expressions if hasattr(sprite, 'expressions') else [],
+                    facing="right"
+                )
 
     def check_collisions(self):
         for portal in self.get_map().portals:
