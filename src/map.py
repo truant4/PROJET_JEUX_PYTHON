@@ -160,16 +160,15 @@ class MapManager():
             enemy.walls = walls
 
         items = []
+        hearts = []
         for obj in tmx_data.objects:
             if obj.type == "healing_item":
                 amount = int(obj.properties.get("amount", 10))
                 item = HealingItem(obj.x, obj.y, amount)
                 items.append(item)
                 group.add(item)
-
-        hearts = []
-        for obj in tmx_data.objects:
-            if obj.type == "heart":
+                
+            elif obj.type == "heart":
                 heart = HeartReceptacle(obj.x, obj.y)
                 hearts.append(heart)
                 group.add(heart)
