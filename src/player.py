@@ -128,7 +128,7 @@ class Player(Entity):
         self.action = "attack"
         self.animation_index = 0
 
-        reach = 20  # how far the attack extends
+        reach = 1  # how far the attack extends
         width = 20  # how wide the attack is
 
         cx = self.feet.centerx
