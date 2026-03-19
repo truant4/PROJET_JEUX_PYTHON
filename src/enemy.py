@@ -288,6 +288,7 @@ class Boss(Enemy):
             attack_range=40,
             attack_cooldown=800
         )
+        self.feet = pygame.Rect(0, 0, self.rect.width * 0.5, 30)
         self.attack_windup = 1300
         self.immune_to_knockback = True
         self.immune_to_interupt = True

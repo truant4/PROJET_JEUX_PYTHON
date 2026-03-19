@@ -77,6 +77,7 @@ class Entity(AnimateSprite):
 class Player(Entity):
     def __init__(self, name, x, y):
         super().__init__("Player", x, y)
+        self.animation_speed = 0.5  # lower = slower
         self.knockback_vector = [0, 0]
         self.knockback_timer = 0
         self.knockback_duration = 200  # ms

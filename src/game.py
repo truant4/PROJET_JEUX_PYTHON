@@ -40,12 +40,9 @@ class Game:
         self.heart_value = 10
         self.heart_display = HeartDisplay(self.player)
 
-# find the boss among enemies
-        # find the boss among ALL maps
         self.boss = next(
-            (e for map_data in self.map_manager.maps.values() 
-             for e in map_data.enemies 
-             if isinstance(e, Boss)),
+            (e for map_data in self.map_manager.maps.values()
+            for e in map_data.enemies if isinstance(e, Boss)),
             None
         )
         self.boss_bar = BossBar(self.boss) if self.boss else None
@@ -86,7 +83,6 @@ class Game:
         return self.map_manager.get_map().enemies
 
     def update(self):
-        self.enemies = self.map_manager.get_map().enemies
         # Check attack FIRST before anything moves
         if self.player.action == "attack" and getattr(self.player, "current_attack_rect", None):
             attack_rect = self.player.current_attack_rect
@@ -133,7 +129,6 @@ class Game:
     def run(self):
         while self.running:
             self.player.save_location()
-            self.enemies = self.map_manager.get_map().enemies
             for enemy in self.enemies:
                 enemy.save_location()
             self.handle_input()
@@ -153,4 +148,3 @@ class Game:
                         self.map_manager.check_npc_collisions(self.dialog_box)
 
             self.clock.tick(40)
-
