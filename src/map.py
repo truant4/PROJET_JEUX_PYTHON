@@ -47,8 +47,8 @@ class MapManager():
 
 
         self.register_map("map", npcs=[
-        NPC("geaq", nb_points = 2, dialog=["Bienvenue au village !", "Moi c'est Geaq enchanté !", "N'hésite pas à rencontrer les personnes du village.", "Va voir la pauvre fille pour plus d'informations"],npc_col=3),
-        NPC("rush_dark", nb_points = 2, dialog=["Salut", "Moi c'est Rush Dark !", " J-j-je suppose que t-t-t tu viens po-po-po-pour l'arbre ?", "Il est en-en-en m-m-mauvais état", "Ce-ce-cela est à cause du-du mo-mo-mo-monstre !", "Il est, il est au fond de la fo-fo-forêt.", "Po-po-pourrais tu nous en dé-dé-débarrasser ?"],npc_col=2),
+        NPC("geaq", nb_points = 2, dialog=["Bienvenue au village !", "Moi c'est Geaq enchanté !", "N'hésite pas à rencontrer les personnes du village.", "Va voir la pauvre fille pour plus d'informations"],npc_col=3,expressions=[2, 2, 0, 4]),
+        NPC("rush_dark", nb_points = 2, dialog=["Salut", "Moi c'est Rush Dark !", " J-j-je suppose que t-t-t tu viens po-po-po-pour l'arbre ?", "Il est en-en-en m-m-mauvais état", "Ce-ce-cela est à cause du-du mo-mo-mo-monstre !", "Il est, il est au fond de la fo-fo-forêt.", "Po-po-pourrais tu nous en dé-dé-débarrasser ?"],npc_col=2,expressions=[0, 2, 3, 6, 1, 3, 5]),
         ],
 
         enemies=[
@@ -75,14 +75,14 @@ class MapManager():
         Portals(from_world="house2", origin_point="exit_house2", target_world="map", teleport_point="enter_exit_house2" )
     ],
         npcs=[
-            NPC("maelys", nb_points = 2, dialog=["On est un peu à l'étroit ici, 15m carré c'est pas bien grand", "Excuse-moi je ne t'avais pas vu","Nous avons un problème en ce moment", "Va voir le grand arbre dans le village"], npc_col=0),
+            NPC("maelys", nb_points = 2, dialog=["On est un peu à l'étroit ici, 15m carré c'est pas bien grand", "Excuse-moi je ne t'avais pas vu","Nous avons un problème en ce moment", "Va voir le grand arbre dans le village"], npc_col=0,expressions=[6, 5, 3, 4]),
             ]
     )
         self.register_map("house3", portals=[
         Portals(from_world="house3", origin_point="exit_house3", target_world="map", teleport_point="enter_exit_house3" )
     ],
         npcs=[
-            NPC("arthur", nb_points= 2, dialog=["Bonjour jeune voyageur, moi c'est arthur","Je manque de data ces derniers jours","Je ne suis qu'à 60 ou 40 pourcent de mes capacités", "Les monstres m'empêchent de travailler", "Saviez vous que les personnes me considèrent comme leurs meilleures rencontres ?"],npc_col=1),
+            NPC("arthur", nb_points= 2, dialog=["Bonjour jeune voyageur, moi c'est arthur","Je manque de data ces derniers jours","Je ne suis qu'à 60 ou 40 pourcent de mes capacités", "Les monstres m'empêchent de travailler", "Les personnes me considèrent comme leurs meilleures rencontres !"],npc_col=1,expressions=[2, 6, 6, 1, 2]),
             ]
     )
         self.register_map("dungeon",enemies=[
