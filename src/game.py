@@ -135,7 +135,7 @@ class Game:
             self.update()
             self.map_manager.draw()
             self.heart_display.draw(self.screen)
-            if self.boss_bar:
+            if self.boss_bar and self.boss.alive():
                 self.boss_bar.draw(self.screen)            
             self.dialog_box.render(self.screen)
             pygame.display.flip()

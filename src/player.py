@@ -128,47 +128,45 @@ class Player(Entity):
         self.action = "attack"
         self.animation_index = 0
 
-        attack_size = 12   # small square hitbox
-        offset = 0       # how far in front of the player
+        reach = 20  # how far the attack extends
+        width = 20  # how wide the attack is
 
-        cx, cy = self.rect.center
+        cx = self.feet.centerx
+        cy = self.feet.centery
 
         if self.direction == "right":
             attack_rect = pygame.Rect(
                 self.feet.right,
-                self.feet.y,
-                4,    # only 4px wide
-                24    # match feet height
+                self.feet.top,
+                reach + self.feet.width,  # extend back so close enemies still get hit
+                self.feet.height * 3
             )
         elif self.direction == "left":
             attack_rect = pygame.Rect(
-                self.feet.left - 4,  # only 4px to the left
-                self.feet.y,
-                4,
-                24
+                self.feet.left - reach,
+                self.feet.top,
+                reach + self.feet.width,
+                self.feet.height * 3
             )
         elif self.direction == "down":
             attack_rect = pygame.Rect(
-                cx - attack_size // 2,
+                cx - width // 2,
                 self.feet.bottom,
-                attack_size,
-                24    # only 4px below feet
+                width,
+                reach + self.feet.height
             )
         elif self.direction == "up":
             attack_rect = pygame.Rect(
-                cx - attack_size // 2,
-                self.feet.top - 4,
-                attack_size,
-                6
+                cx - width // 2,
+                self.feet.top - reach,
+                width,
+                reach + self.feet.height
             )
         else:
-            attack_rect = pygame.Rect(cx, cy, attack_size, attack_size)
-
-        print(f"[ATTACK] dir={self.direction} | player_rect={self.rect} | attack_rect={attack_rect} | size={attack_rect.width}x{attack_rect.height} | offset={offset}")
+            attack_rect = pygame.Rect(cx, cy, width, reach)
 
         self.current_attack_rect = attack_rect
         return attack_rect
-
     def update(self):
         if self.action == "death":
             super().update()
