@@ -103,7 +103,7 @@ Village (map)
  ├── House 1
  │    └── Room 1
  ├── House 2  —  Maelys
- ├── House 3  —  Robin
+ ├── House 3  —  Arthur
  └── Dungeon  —  Boss
 ```
 
