@@ -194,10 +194,8 @@ class MapManager():
         
         group = pyscroll.PyscrollGroup(map_layer=map_layer, default_layer=17)
         group.add(self.player)
-
-        
         for npc in npcs:
-            group.add(npc)
+            group.add(npc, layer=16)
         
         for enemy in enemies:
             enemy.game_clock = self.clock
