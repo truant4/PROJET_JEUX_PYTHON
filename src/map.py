@@ -92,7 +92,7 @@ class MapManager():
 
         self.teleportation_player("player")
         self.teleport_npcs()
-    # self.teleport_enem
+    
 
     def check_npc_collisions(self, dialog_box):
         for sprite in self.get_group().sprites():
@@ -123,11 +123,11 @@ class MapManager():
                 else :
                     sprite.speed = 1
                     
-        # Walls pour le player uniquement
+        
         if self.player.feet.collidelist(self.get_walls()) > -1:
             self.player.move_back()
 
-        # Walls pour les NPCs uniquement
+        
         for npc in self.get_map().npcs:
             if npc.feet.collidelist(self.get_walls()) > -1:
                 npc.move_back()
@@ -165,13 +165,13 @@ class MapManager():
         if portals is None:
             portals = []
 
-        # Charger la carte clasique
+        
         tmx_data = pytmx.util_pygame.load_pygame(f"assets/{name}.tmx")
         map_data = pyscroll.data.TiledMapData(tmx_data)
         map_layer = pyscroll.orthographic.BufferedRenderer(map_data, self.screen.get_size())
         map_layer.zoom = 5
 
-        # Les collisions
+        
         walls = []
         walls_enemy =[]
 
@@ -191,11 +191,11 @@ class MapManager():
                     obj.width,
                     obj.height
                 ))
-        # Dessiner les diffÃ©rents calques
+        
         group = pyscroll.PyscrollGroup(map_layer=map_layer, default_layer=17)
         group.add(self.player)
 
-        #recuperer tout les npcs pour les ajouter au groupe
+        
         for npc in npcs:
             group.add(npc)
         
@@ -232,16 +232,16 @@ class MapManager():
 
     def teleport_npcs(self):
         for map_name, map_data in self.maps.items():
-            # First, load points for NPCs and enemies
+            
             for npc in map_data.npcs:
-                print(f"Loading points for NPC: {npc.name}")  # Debug
+                print(f"Loading points for NPC: {npc.name}")  
                 npc.load_points(map_data.tmx_data)
             
             for enemy in map_data.enemies:
-                print(f"Loading points for Enemy: {enemy.name}")  # Debug
+                print(f"Loading points for Enemy: {enemy.name}")  
                 enemy.load_points(map_data.tmx_data)
             
-            # Then, teleport them
+            
             for npc in map_data.npcs:
                 npc.teleport_spawn()
             for enemy in map_data.enemies:
@@ -256,15 +256,15 @@ class MapManager():
             return
         for sprite in self.get_group().sprites():
             if type(sprite) is NPC and sprite.feet.colliderect(self.player.rect):
-                return  # still close enough
-        # No NPC in range — close the dialog
+                return  
+        
         self.dialog_box.reading = False
 
 
     def update(self):
         self.get_group().update()
         self.check_collisions()
-        self.check_dialog_distance()  # ← add this
+        self.check_dialog_distance()  
 
         for npc in self.get_map().npcs:
             npc.move()

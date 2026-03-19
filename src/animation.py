@@ -55,7 +55,7 @@ class AnimateSprite(pygame.sprite.Sprite):
         char_col = npc_col % 2
         char_row = npc_col // 2
 
-        # local variables, not stored on self
+        
         x_offset = char_col * 3 * self.frame_size
         y_offset = char_row * 4 * self.frame_size
 
@@ -167,7 +167,7 @@ class AnimateSprite(pygame.sprite.Sprite):
         frames = []
 
         frame_height = sheet.get_height()
-        frame_width = frame_height   # assumes square frames
+        frame_width = frame_height   
 
         num_frames = sheet.get_width() // frame_width
 
@@ -189,14 +189,14 @@ class AnimateSprite(pygame.sprite.Sprite):
 
         self.direction = direction
         frames = self.images[self.action][self.direction]
-        anim_speed = getattr(self, "animation_speed", self.speed)  # ← use animation_speed if set
+        anim_speed = getattr(self, "animation_speed", self.speed)  
         self.clock += anim_speed * 8
         if self.clock >= 100:
             self.animation_index += 1
             self.clock = 0
 
             if self.animation_index >= len(frames):
-                if self.action in ("attack", "death","hurt"):  # ← add death here
+                if self.action in ("attack", "death","hurt"):  
                     self.animation_index = len(frames) - 1
                 else:
                     self.animation_index = 0
@@ -244,7 +244,7 @@ class AnimateSprite(pygame.sprite.Sprite):
     def load_boss_style(self):
         self.frame_size = 80
         self.frames_per_anim = 8
-        self.scale = 1.5  # ← change this to make boss bigger
+        self.scale = 1.5  
 
         self.animation_priority = {
             "idle": 0,
@@ -290,7 +290,7 @@ class HeartDisplay:
         self.heart_value = heart_value
         self.heart_image = pygame.image.load(heart_path)
         self.heart_width = self.heart_image.get_width()
-        self.spacing = 45 # space between hearts
+        self.spacing = 45 
 
     def draw(self, screen):
         total_hearts = self.player.max_health // self.heart_value
@@ -316,13 +316,13 @@ class HeartDisplay:
         """
         index: 0 = full, 1 = empty, 2 = half
         """
-        image = pygame.Surface((96, 96), pygame.SRCALPHA)  # transparent surface
+        image = pygame.Surface((96, 96), pygame.SRCALPHA)  
         image.blit(self.heart_image, (0, 0), (index * 96, 0, 96, 96))
         return image
 
 
 class BossBar:
-    def __init__(self, boss, sheet_path="assets/sprites/Boss/HUD_Boss.png", scale=6):  # scale up
+    def __init__(self, boss, sheet_path="assets/sprites/Boss/HUD_Boss.png", scale=6):  
         self.boss = boss
         sheet = pygame.image.load(sheet_path).convert_alpha()
         frame_w = sheet.get_width()
@@ -348,7 +348,7 @@ class BossBar:
 
         screen_w = screen.get_width()
         x = (screen_w - self.frame_w) // 2
-        y = 55  # ← top of screen instead of bottom
+        y = 55  
 
         fill_ratio = self.boss.health / self.boss.max_health
         fill_width = int(self.fill_w * fill_ratio)

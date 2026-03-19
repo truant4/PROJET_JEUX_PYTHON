@@ -3,7 +3,7 @@ import pygame
 class DialogBox:
     BOX_WIDTH = 1400
     BOX_HEIGHT = 200
-    PORTRAIT_SIZE = 112  # one full frame, no scaling needed
+    PORTRAIT_SIZE = 112  
 
     def __init__(self, screen_width, screen_height):
         self.screen_width = screen_width
@@ -16,11 +16,11 @@ class DialogBox:
         self.texts = []
         self.text_index = 0
         self.letter_index = 0
-        self.font = pygame.font.Font("dialogs/dialog_font.ttf", 24)  # slightly bigger font too
+        self.font = pygame.font.Font("dialogs/dialog_font.ttf", 24)  
         self.reading = False
         self.portrait = None
 
-        # Frame dimensions from the sheet
+        
         self.frame_w = 96
         self.frame_h = 112
 
@@ -33,7 +33,7 @@ class DialogBox:
         portrait = pygame.Surface((self.frame_w, self.frame_h), pygame.SRCALPHA)
         portrait.blit(self.npc_sheet, (0, 0), (x, y, self.frame_w, self.frame_h))
 
-        # Scale up to fit portrait area nicely
+        
         return pygame.transform.scale(portrait, (self.PORTRAIT_SIZE * 2, self.PORTRAIT_SIZE * 2))
 
     def execute(self, dialog=[], npc_index=0, expressions=[], facing="right"):
@@ -46,7 +46,7 @@ class DialogBox:
             self.texts = dialog
             self.npc_index = npc_index
             self.facing = facing
-            # Fall back to expression 0 if no list provided
+            
             self.expressions = expressions if expressions else [0] * len(dialog)
             self.portrait = self.get_portrait(npc_index, self.expressions[0], facing)
 
@@ -56,7 +56,7 @@ class DialogBox:
         if self.text_index >= len(self.texts):
             self.reading = False
         else:
-            # Update portrait to match the new line's expression
+            
             expression = self.expressions[self.text_index] if self.text_index < len(self.expressions) else 0
             self.portrait = self.get_portrait(self.npc_index, expression, self.facing)
 
@@ -64,28 +64,28 @@ class DialogBox:
         if not self.reading:
             return
 
-        # Typewriter effect
+        
         self.letter_index += 1
         current_text = self.texts[self.text_index]
         if self.letter_index >= len(current_text):
             self.letter_index = len(current_text)
 
-        # Draw box
+        
         screen.blit(self.box, (self.x, self.y))
 
-        # Draw portrait sitting on top of the left edge of the box
+        
         if self.portrait:
             portrait_w = self.portrait.get_width()
             portrait_h = self.portrait.get_height()
-            portrait_x = self.x + 50  # flush with left edge of box
-            portrait_y = self.y - portrait_h  # sits on top
+            portrait_x = self.x + 50  
+            portrait_y = self.y - portrait_h  
             screen.blit(self.portrait, (portrait_x, portrait_y))
 
-        # Draw text with padding, offset right to leave room for portrait
+        
         text_surface = self.font.render(
             current_text[0:self.letter_index], False, (0, 0, 0)
         )
         portrait_w = self.portrait.get_width() if self.portrait else 0
-        text_x = self.x + portrait_w + 10  # pushed right past the portrait width
+        text_x = self.x + portrait_w + 10  
         text_y = self.y + (self.BOX_HEIGHT - text_surface.get_height()) // 2
         screen.blit(text_surface, (text_x, text_y))

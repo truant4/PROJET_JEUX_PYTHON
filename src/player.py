@@ -6,19 +6,19 @@ class Entity(AnimateSprite):
     def __init__(self, name, x, y,sprite_type="player",npc_col=0):
         super().__init__(name,sprite_type,npc_col)
 
-        # Position and old position
+        
         self.position = [x, y]
         self.old_position = self.position.copy()
 
 
 
-        # Animation state
-        self.action = "idle"         # "idle", "run", "attack"
+        
+        self.action = "idle"         
 
-        # Movement vector for collisions
-        self.move_vector = (0, 0)    # dx, dy
+        
+        self.move_vector = (0, 0)    
 
-        # Initialize sprite image and rect
+        
         self.image = self.images[self.action][self.direction][0]
         self.rect = self.image.get_rect()
         self.feet = pygame.Rect(0, 0, self.rect.width * 0.5, 12)
@@ -26,7 +26,7 @@ class Entity(AnimateSprite):
     def save_location(self):
         self.old_position = self.position.copy()
 
-    # Movement methods
+    
     def move_right(self):
         self.direction = "right"
         self.position[0] += self.speed
@@ -47,29 +47,29 @@ class Entity(AnimateSprite):
         self.position[1] += self.speed
         self.move_vector = (0, 1)
 
-    # Stop moving (idle)
+    
     def stop(self):
         self.direction = self.direction
         self.move_vector = (0, 0)
 
-    # Attack animation
+    
     def attack(self):
         self.direction = self.direction
         self.animation_index = 0
-        self.move_vector = (0, 0)  # usually stop movement when attacking
+        self.move_vector = (0, 0)  
 
-    # Move back to previous position (collision)
+    
     def move_back(self):
         self.position = self.old_position.copy()
         self.rect.topleft = tuple(self.position)     
         self.feet.midbottom = self.rect.midbottom 
 
-    # Update animation and position
+    
     def update(self):
-        # Update animation based on current action and direction
+        
         self.change_animation(self.action, self.direction)
 
-        # Update rect and feet for collisions
+        
         self.rect.topleft = tuple(self.position)
         self.feet.midbottom = self.rect.midbottom    
     
@@ -77,34 +77,34 @@ class Entity(AnimateSprite):
 class Player(Entity):
     def __init__(self, name, x, y):
         super().__init__("Player", x, y)
-        self.animation_speed = 0.5  # lower = slower
+        self.animation_speed = 0.5  
         self.knockback_vector = [0, 0]
         self.knockback_timer = 0
-        self.knockback_duration = 200  # ms
+        self.knockback_duration = 200  
         self.knockback_speed = 4
 
-        # Stats
+        
         self.health = 100
         self.max_health = 100
 
-        # Melee
+        
         self.melee_damage = 20
-        self.melee_cooldown = 500  # milliseconds
+        self.melee_cooldown = 500  
         self.melee_duration = 100
         self.last_melee_time = 0
 
-        # Ranged
+        
         self.ranged_damage = 10
         self.ranged_cooldown = 300
         self.last_ranged_time = 0
 
-    # Health
+    
     def take_dmg(self, amount, source_pos=None):
         self.health -= amount
         if self.health < 0:
             self.health = 0
 
-        # Apply knockback if we know where the hit came from
+        
         if source_pos:
             px, py = self.rect.center
             sx, sy = source_pos
@@ -129,8 +129,8 @@ class Player(Entity):
         self.action = "attack"
         self.animation_index = 0
 
-        reach = 10  # how far the attack extends
-        width = 20  # how wide the attack is
+        reach = 10  
+        width = 20  
 
         cx = self.feet.centerx
         cy = self.feet.centery
@@ -139,7 +139,7 @@ class Player(Entity):
             attack_rect = pygame.Rect(
                 self.feet.right,
                 self.feet.top,
-                reach + self.feet.width,  # extend back so close enemies still get hit
+                reach + self.feet.width,  
                 self.feet.height * 1.5
             )
         elif self.direction == "left":
@@ -172,12 +172,12 @@ class Player(Entity):
         if self.action == "death":
             super().update()
             return
-        # Handle knockback
+        
         if self.knockback_timer > 0:
             self.position[0] += self.knockback_vector[0]
             self.position[1] += self.knockback_vector[1]
 
-            # decrease timer using frame delta
+            
             self.knockback_timer -= self.game_clock.get_time()
 
             if self.knockback_timer <= 0:
@@ -247,7 +247,7 @@ class NPC(Entity):
         self.save_location()
 
     def load_points(self, tmx_data):
-        # Find the object group first
+        
         group = None
         for obj_group in tmx_data.objectgroups:
             if obj_group.name == "NPCPaths":
@@ -258,7 +258,7 @@ class NPC(Entity):
             print(f"[ERROR] NPCPaths group not found in Tiled map")
             return
 
-        # Search for path objects inside this group
+        
         for num in range(1, self.nb_points + 1):
             point_name = f"{self.name}_path{num}"
             point = None

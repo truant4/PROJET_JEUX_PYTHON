@@ -12,16 +12,15 @@ class Game:
     def __init__(self, screen):
         self.running = True
         self.map = "map"
-        self.screen = screen  # use the screen passed in from main.py — no new set_mode here
+        self.screen = screen  
 
         pygame.display.set_caption("BasiqueGame")
 
-        # Derive WIDTH and HEIGHT from the actual screen
         self.WIDTH = screen.get_width()
         self.HEIGHT = screen.get_height()
 
         self.death_timer = None
-        self.death_delay = 5000
+        self.death_delay = 3000
 
         self.clock = pygame.time.Clock()
         self.player = Player("player", 0, 0)
@@ -58,7 +57,6 @@ class Game:
         if pressed[pygame.K_ESCAPE]:
             self.running = False
 
-        # Reset movement each frame
         self.player.move_vector = (0, 0)
 
         if pressed[pygame.K_UP]:
@@ -70,11 +68,9 @@ class Game:
         if pressed[pygame.K_LEFT]:
             self.player.move_left()
 
-        # If no movement happened → idle
         if self.player.move_vector == (0,0):
             self.player.stop()
 
-        # Melee attack
         if pressed[pygame.K_SPACE]:
             self.player.melee_attack()
     @property
@@ -82,7 +78,6 @@ class Game:
         return self.map_manager.get_map().enemies
 
     def update(self):
-        # Check attack FIRST before anything moves
         if self.player.action == "attack" and getattr(self.player, "current_attack_rect", None):
             attack_rect = self.player.current_attack_rect
             for enemy in self.enemies:
@@ -100,7 +95,6 @@ class Game:
                         enemy.can_attack = False
             self.player.current_attack_rect = None
 
-        # Then update everything
         self.map_manager.update()
         self.player.update()
 
@@ -111,12 +105,12 @@ class Game:
                 self.player.action = "idle"
 
         for enemy in self.enemies[:]:
-            if not enemy.alive():  # sprite.alive() returns False after kill() is called
+            if not enemy.alive():  
                 self.enemies.remove(enemy)
 
         if self.player.is_dead() and self.death_timer is None:
             self.player.direction = "down"
-            self.player.action = "death"  # trigger animation
+            self.player.action = "death"  
             self.death_timer = pygame.time.get_ticks()
 
         if self.death_timer is not None:
