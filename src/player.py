@@ -128,7 +128,7 @@ class Player(Entity):
         self.action = "attack"
         self.animation_index = 0
 
-        reach = 20  # how far the attack extends
+        reach = 10  # how far the attack extends
         width = 20  # how wide the attack is
 
         cx = self.feet.centerx
@@ -139,14 +139,14 @@ class Player(Entity):
                 self.feet.right,
                 self.feet.top,
                 reach + self.feet.width,  # extend back so close enemies still get hit
-                self.feet.height * 3
+                self.feet.height * 1.5
             )
         elif self.direction == "left":
             attack_rect = pygame.Rect(
                 self.feet.left - reach,
                 self.feet.top,
                 reach + self.feet.width,
-                self.feet.height * 3
+                self.feet.height * 1.5
             )
         elif self.direction == "down":
             attack_rect = pygame.Rect(
