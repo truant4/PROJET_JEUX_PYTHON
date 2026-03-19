@@ -34,8 +34,8 @@ class MapManager():
           self.current_map = "map"
           self.enemies = []
           self.register_map("map", npcs=[
-            NPC("paul", nb_points = 4, dialog=["Salut", "bien", "au revoir"],npc_col=0),
-            NPC("robin", nb_points= 2, dialog=["coucou", "cool", "au revoir"],npc_col=1),
+            NPC("paul", nb_points=4, dialog=["grrr!", "bien", "au revoir"], npc_col=0, expressions=[0, 2, 4]),
+            NPC("robin", nb_points=2, dialog=["coucou", "cool", "au revoir"], npc_col=1, expressions=[1, 3, 0]),
             ],
             enemies=[
             Slime("slime1",self.player,nb_points=2),
@@ -71,7 +71,12 @@ class MapManager():
     def check_npc_collisions(self, dialog_box):
         for sprite in self.get_group().sprites():
             if type(sprite) is NPC and sprite.feet.colliderect(self.player.rect):
-                dialog_box.execute(sprite.dialog)
+                dialog_box.execute(
+                    dialog=sprite.dialog,
+                    npc_index=sprite.npc_col,
+                    expressions=sprite.expressions if hasattr(sprite, 'expressions') else [],
+                    facing="right"
+                )
 
     def check_collisions(self):
         for portal in self.get_map().portals:

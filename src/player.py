@@ -205,8 +205,10 @@ class Player(Entity):
         super().update()
 
 class NPC(Entity):
-    def __init__(self, name, nb_points, dialog,sprite_type="npc",npc_col=0):
+    def __init__(self, name, nb_points, dialog,sprite_type="npc",npc_col=0,expressions = []):
         super().__init__(name, 0, 0,sprite_type,npc_col)
+        self.npc_col = npc_col
+        self.expressions = expressions
         self.nb_points = nb_points
         self.dialog = dialog
         self.points = []
