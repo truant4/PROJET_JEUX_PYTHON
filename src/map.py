@@ -194,7 +194,8 @@ class MapManager():
         # Dessiner les diffÃ©rents calques
         group = pyscroll.PyscrollGroup(map_layer=map_layer, default_layer=17)
         group.add(self.player)
-
+        for npc in npcs:
+            group.add(npc, layer=16)
         #recuperer tout les npcs pour les ajouter au groupe
         for npc in npcs:
             group.add(npc)
