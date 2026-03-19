@@ -2,11 +2,6 @@
 
 # RPG Village — Projet Jeux Python
 
-![Python](https://img.shields.io/badge/Python-3.10+-3776AB?style=for-the-badge&logo=python&logoColor=white)
-![Pygame](https://img.shields.io/badge/Pygame-2.x-00B140?style=for-the-badge&logo=python&logoColor=white)
-![Status](https://img.shields.io/badge/Status-En%20développement-orange?style=for-the-badge)
-![École](https://img.shields.io/badge/EPSI-B1%20POO-blueviolet?style=for-the-badge)
-
 <br>
 
 > *Un RPG 2D top-down où un héros doit sauver le grand arbre de son village en éliminant la menace qui rôde au fond de la forêt.*
@@ -90,11 +85,12 @@ python main.py
 
 | Touche | Action |
 |:------:|--------|
-| `Z` / `↑` | Se déplacer vers le haut |
-| `S` / `↓` | Se déplacer vers le bas |
-| `Q` / `←` | Se déplacer à gauche |
-| `D` / `→` | Se déplacer à droite |
-| `Espace` | Interagir / Avancer le dialogue |
+| `↑` | Se déplacer vers le haut |
+| `↓` | Se déplacer vers le bas |
+| `←` | Se déplacer à gauche |
+| `→` | Se déplacer à droite |
+| `Espace` | Attaquer |
+| `T` | Lancer le dialogue et l'avancer |
 
 </div>
 
