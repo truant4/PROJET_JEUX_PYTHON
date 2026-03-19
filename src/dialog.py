@@ -1,51 +1,42 @@
 import pygame
 
 class DialogBox:
-    BOX_WIDTH = 700
-    BOX_HEIGHT = 100
-    PORTRAIT_SIZE = 64  # scaled up from 8x8
+    BOX_WIDTH = 1400
+    BOX_HEIGHT = 200
+    PORTRAIT_SIZE = 112  # one full frame, no scaling needed
 
     def __init__(self, screen_width=1980, screen_height=1080):
         self.screen_width = screen_width
         self.screen_height = screen_height
-
         self.box = pygame.image.load('dialogs/dialog_box.png')
         self.box = pygame.transform.scale(self.box, (self.BOX_WIDTH, self.BOX_HEIGHT))
-
         self.npc_sheet = pygame.image.load('assets/sprites/NPCS_Faces.png')
-
         self.x = (screen_width - self.BOX_WIDTH) // 2
-        self.y = screen_height - self.BOX_HEIGHT - 20  # 20px padding from bottom
-
+        self.y = screen_height - self.BOX_HEIGHT - 20
         self.texts = []
         self.text_index = 0
         self.letter_index = 0
-        self.font = pygame.font.Font("dialogs/dialog_font.ttf", 18)
+        self.font = pygame.font.Font("dialogs/dialog_font.ttf", 24)  # slightly bigger font too
         self.reading = False
         self.portrait = None
 
+        # Frame dimensions from the sheet
+        self.frame_w = 96
+        self.frame_h = 112
+
     def get_portrait(self, npc_index=0, expression=0, facing="right"):
-        frame_size = 8
-
-        # Convert facing to row offset
         direction = 0 if facing == "right" else 1
-
-        # Compute row
         row = npc_index * 2 + direction
+        x = expression * self.frame_w
+        y = row * self.frame_h
 
-        # Compute position
-        x = expression * frame_size
-        y = row * frame_size
+        portrait = pygame.Surface((self.frame_w, self.frame_h), pygame.SRCALPHA)
+        portrait.blit(self.npc_sheet, (0, 0), (x, y, self.frame_w, self.frame_h))
 
-        portrait = pygame.Surface((frame_size, frame_size), pygame.SRCALPHA)
-        portrait.blit(self.npc_sheet, (0, 0), (x, y, frame_size, frame_size))
+        # Scale up to fit portrait area nicely
+        return pygame.transform.scale(portrait, (self.PORTRAIT_SIZE * 2, self.PORTRAIT_SIZE * 2))
 
-        return pygame.transform.scale(
-            portrait,
-            (self.PORTRAIT_SIZE, self.PORTRAIT_SIZE)
-        )
-
-    def execute(self, dialog=[], npc_index=0, expression=0, facing="right"):
+    def execute(self, dialog=[], npc_index=0, expressions=[], facing="right"):
         if self.reading:
             self.next_text()
         else:
@@ -53,7 +44,21 @@ class DialogBox:
             self.text_index = 0
             self.letter_index = 0
             self.texts = dialog
-            self.portrait = self.get_portrait(npc_index, expression, facing)
+            self.npc_index = npc_index
+            self.facing = facing
+            # Fall back to expression 0 if no list provided
+            self.expressions = expressions if expressions else [0] * len(dialog)
+            self.portrait = self.get_portrait(npc_index, self.expressions[0], facing)
+
+    def next_text(self):
+        self.text_index += 1
+        self.letter_index = 0
+        if self.text_index >= len(self.texts):
+            self.reading = False
+        else:
+            # Update portrait to match the new line's expression
+            expression = self.expressions[self.text_index] if self.text_index < len(self.expressions) else 0
+            self.portrait = self.get_portrait(self.npc_index, expression, self.facing)
 
     def render(self, screen):
         if not self.reading:
@@ -61,26 +66,25 @@ class DialogBox:
 
         # Typewriter effect
         self.letter_index += 1
-        if self.letter_index >= len(self.texts[self.text_index]):
-            self.letter_index = len(self.texts[self.text_index])
+        current_text = self.texts[self.text_index]
+        if self.letter_index >= len(current_text):
+            self.letter_index = len(current_text)
 
-        # Draw box centered at bottom
+        # Draw box
         screen.blit(self.box, (self.x, self.y))
 
-        # Draw portrait on the left of the box
+        # Draw portrait to the left of the box
         if self.portrait:
-            portrait_x = self.x - self.PORTRAIT_SIZE - 10  # just left of box
-            portrait_y = self.y + (self.BOX_HEIGHT - self.PORTRAIT_SIZE) // 2
+            portrait_w = self.portrait.get_width()
+            portrait_h = self.portrait.get_height()
+            portrait_x = self.x - portrait_w - 10
+            portrait_y = self.y + (self.BOX_HEIGHT - portrait_h) // 2
             screen.blit(self.portrait, (portrait_x, portrait_y))
 
-        # Draw text with offset to leave room on the left
+        # Draw text with padding inside box
         text_surface = self.font.render(
-            self.texts[self.text_index][0:self.letter_index], False, (0, 0, 0)
+            current_text[0:self.letter_index], False, (0, 0, 0)
         )
-        screen.blit(text_surface, (self.x + 20, self.y + 30))
-
-    def next_text(self):
-        self.text_index += 1
-        self.letter_index = 0
-        if self.text_index >= len(self.texts):
-            self.reading = False
+        text_x = self.x + 120  # fixed left padding
+        text_y = self.y + (self.BOX_HEIGHT - text_surface.get_height()) // 2
+        screen.blit(text_surface, (text_x, text_y)) 
