@@ -348,7 +348,7 @@ class BossBar:
 
         screen_w = screen.get_width()
         x = (screen_w - self.frame_w) // 2
-        y = 20  # ← top of screen instead of bottom
+        y = 55  # ← top of screen instead of bottom
 
         fill_ratio = self.boss.health / self.boss.max_health
         fill_width = int(self.fill_w * fill_ratio)

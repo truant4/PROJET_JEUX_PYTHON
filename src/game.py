@@ -2,47 +2,40 @@ import pygame
 import pytmx
 import pyscroll
 from dialog import DialogBox
-from données import WIDTH, HEIGHT, FPS, BG_COLOR, PLAYER_SIZE
+from données import FPS, BG_COLOR, PLAYER_SIZE
 from enemy import Enemy,Boss
 from projectile import Projectile
 from player import *
 from map import *
 from animation import HeartDisplay, BossBar
-
 class Game:
-
-    def __init__(self, screen):   
-
+    def __init__(self, screen):
         self.running = True
         self.map = "map"
+        self.screen = screen  # use the screen passed in from main.py — no new set_mode here
 
-        self.screen = screen         
-
-
-        # Affichage de la fenêtre
-        self.screen = pygame.display.set_mode((1980, 1080))
         pygame.display.set_caption("BasiqueGame")
+
+        # Derive WIDTH and HEIGHT from the actual screen
+        self.WIDTH = screen.get_width()
+        self.HEIGHT = screen.get_height()
 
         self.death_timer = None
         self.death_delay = 5000
 
- 
         self.clock = pygame.time.Clock()
-        # Générer le joeur
-        self.player = Player("player",0,0)
-        self.map_manager = MapManager(self.screen, self.player,self.clock)
-        
-        self.dialog_box = DialogBox()
+        self.player = Player("player", 0, 0)
+        self.map_manager = MapManager(self.screen, self.player, self.clock)
+
+        self.dialog_box = DialogBox(self.WIDTH,self.HEIGHT)
 
         self.attack_rect = None
         self.projectiles = []
-        self.enemies = self.map_manager.get_map().enemies
 
         current_map = self.map_manager.maps[self.map]
         tmx = current_map.tmx_data
         self.map_width = tmx.width * tmx.tilewidth
         self.map_height = tmx.height * tmx.tileheight
-
 
         self.heart_value = 10
         self.heart_display = HeartDisplay(self.player)
@@ -57,8 +50,9 @@ class Game:
         )
         self.boss_bar = BossBar(self.boss) if self.boss else None
         self.player.game_clock = self.clock
-        for enemy in self.map_manager.get_map().enemies:
-            enemy.game_clock = self.clock
+        for map_data in self.map_manager.maps.values():
+            for enemy in map_data.enemies:
+                enemy.game_clock = self.clock
 
     def handle_input(self):
         pressed = pygame.key.get_pressed()
@@ -87,6 +81,9 @@ class Game:
         # Melee attack
         if pressed[pygame.K_SPACE]:
             self.player.melee_attack()
+    @property
+    def enemies(self):
+        return self.map_manager.get_map().enemies
 
     def update(self):
         self.enemies = self.map_manager.get_map().enemies
