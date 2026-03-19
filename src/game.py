@@ -25,10 +25,9 @@ class Game:
 
         self.clock = pygame.time.Clock()
         self.player = Player("player", 0, 0)
-        self.map_manager = MapManager(self.screen, self.player, self.clock)
-
         self.dialog_box = DialogBox(self.WIDTH,self.HEIGHT)
 
+        self.map_manager = MapManager(self.screen, self.player, self.clock, self.dialog_box)
         self.attack_rect = None
         self.projectiles = []
 

@@ -27,13 +27,14 @@ class Map:
 
 class MapManager():
      
-    def __init__(self, screen, player,clock):
+    def __init__(self, screen, player,clock,dialog_box):
         self.maps = dict()
         self.screen = screen
         self.player = player
         self.clock = clock
         self.current_map = "map"
         self.enemies = []
+        self.dialog_box = dialog_box
 
 
         goblins = []
@@ -250,10 +251,20 @@ class MapManager():
         self.get_group().draw(self.screen)
         self.get_group().center(self.player.rect.center)
 
+    def check_dialog_distance(self):
+        if not self.dialog_box.reading:
+            return
+        for sprite in self.get_group().sprites():
+            if type(sprite) is NPC and sprite.feet.colliderect(self.player.rect):
+                return  # still close enough
+        # No NPC in range — close the dialog
+        self.dialog_box.reading = False
+
 
     def update(self):
         self.get_group().update()
         self.check_collisions()
+        self.check_dialog_distance()  # ← add this
 
         for npc in self.get_map().npcs:
             npc.move()
